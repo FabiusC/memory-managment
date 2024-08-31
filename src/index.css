@@ -1,0 +1,228 @@
+:root {
+  max-width: none !important;
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  align-items: center;
+  justify-content: center;
+  background-color: #1a1a1a;
+  color: #fff;
+}
+
+.container {
+  display: flex;
+  gap: 20px;
+  background-color: #1a1a1a;
+  color: #fff;
+  min-height: 100%;
+}
+
+.process-list-container {
+  width: 50%;
+  background-color: #2c2c2c;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 24px;
+  margin-left: 20px;
+}
+
+.controls-container {
+  margin: 0;
+  justify-content: end;
+}
+
+.btn {
+  padding: 10px 20px;
+  background-color: #1f1f1f;
+  color: white;
+  cursor: pointer;
+  border-color: #ccc;
+  border-width: 1px;
+  border-radius: 5px;
+  margin: 10px;
+  transition: background-color 0.1s;
+}
+
+.btn:hover {
+  background-color: #ffffff86;
+  color: black;
+}
+
+.btn-reset {
+  padding: 10px 20px;
+  background-color: #ff00003b;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  border-color: #ccc;
+  border-width: 1px;
+  border-radius: 5px; 
+  margin: 10px;
+  transition: background-color 0.1s;
+}
+
+.btn-reset:hover {
+  background-color: #ff000086;
+  color: white;
+}
+
+.processes-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.process-card {
+  background-color: #3c3c3c;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+
+.process-image {
+  width: 50px;
+  max-height: 50px;
+  height: auto;
+  object-fit: fill;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.process-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.process-id,
+.process-memory {
+  margin: 2px 0;
+}
+
+.memory-container {
+  width: 50%;
+  background-color: #2c2c2c;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.memory-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.memory-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.select-memory-type, .select-algorithm-type {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #1a1a1a;
+  color: white;
+}
+
+.memory-visualization {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  background-color: #1a1a1a;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.memory-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px;
+  cursor: pointer;
+  display: none;
+}
+
+.memory-wrapper:hover .remove-btn {
+  display: block;
+}
+
+.memory-block {
+  background-color: #3c3c3c;
+  padding: 10px;
+  text-align: center;
+  border-radius: 5px;
+  color: #fff;
+}
+
+.memory-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.memory-input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #1a1a1a;
+  color: #fff;
+  margin-right: 10px;
+  width: 120px;
+  outline: none;
+}
+
+.memory-input::placeholder {
+  color: #888;
+}
+
+.memory-input:focus {
+  border-color: #007bff;
+}
+
+.compact-checkbox {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+  color: #fff;
+}
+
+.checkbox {
+  margin-right: 8px;
+  accent-color: #000000; /* Cambia el color del checkbox */
+}
+
+.checkbox:focus {
+  outline: none;
+  border-color: #707070;
+}
