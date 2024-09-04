@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
   initializeMemoryAndQueue,
-  firstFit,
-  bestFit,
-  worstFit,
   getMemoryType,
   setMemoryType,
   getAlgorithmType,
@@ -12,7 +9,8 @@ import {
   setCompactMode,
   removeProcess,
   addPartition,
-  removePartition
+  removePartition,
+  calculateTotalFreeMemory
 } from '../logic/MemoryManagment';
 import {
   addProcessToProcessQueue,
@@ -67,7 +65,7 @@ function Memory() {
     setLocalIsCompact(getIsCompactFromLocalStorage());
   };
 
-  const removeProcessHandler = (processId) => {
+  const handleRemoveProcess = (processId) => {
     addProcessToProcessQueue(processId);
     removeProcess(processId);
     setLocalMemory(getMemoryFromLocalStorage());
@@ -84,35 +82,10 @@ function Memory() {
   };
 
   const handleRemovePartition = (index) => {
-    removePartition(index); // Llama al método para eliminar la partición en el MemoryManagement
-    setLocalMemory(getMemoryFromLocalStorage()); // Actualiza el estado de la memoria local después de la eliminación
-  };
-
-  // eslint-disable-next-line no-unused-vars
-  const addProcessToMemoryHandler = (process) => {
-    let success = false;
-    switch (algorithmType) {
-      case 'Primer ajuste':
-        success = firstFit(process);
-        console.log(`firstFit Algorithm: ${process}`);
-        break;
-      case 'Mejor ajuste':
-        success = bestFit(process);
-        console.log(`bestFit Algorithm: ${process}`);
-        break;
-      case 'Peor ajuste':
-        success = worstFit(process);
-        console.log(`worstFit Algorithm: ${process}`);
-        break;
-      default:
-        console.log(`No se reconoce el algoritmo: ${algorithmType}`);
-        return;
-    }
-
-    if (!success) {
-      alert('No hay suficiente espacio para este proceso.');
-    } else {
-      setLocalMemory(getMemoryFromLocalStorage());
+    if (memoryType === 'Estática Personalizada') {
+      removePartition(index); // Llama al método para eliminar la partición en MemoryManagement
+      const updatedMemory = getMemoryFromLocalStorage();
+      setLocalMemory(Array.isArray(updatedMemory) ? updatedMemory : []);
     }
   };
 
@@ -130,7 +103,7 @@ function Memory() {
             />
             Compactar Memoria
           </label>
-          <span>Total Free Memory: {/* Cálculo necesario */} KB</span>
+          <span>Memoria total Libre: {calculateTotalFreeMemory()} KB</span>
           <select className="select-memory-type" onChange={handleMemoryTypeChange} value={memoryType}>
             {MEMORY_TYPES.map((type) => (
               <option key={type} value={type}>
@@ -150,14 +123,19 @@ function Memory() {
           <div key={index} className="memory-wrapper">
             <span className={`memory-status ${(memoryType === 'Estática Personalizada' && 'custom-memory')}`}>
               {block.name ? (
-                <p>{block.name}, Tamaño: {block.size} KB</p>
+                <p>{block.name}, Tamaño: {block.memory} KB</p>
               ) : (
                 <p>Partición Disponible, Espacio Libre: {block.size} KB</p>
               )}
             </span>
-            {block.process && (
-              <button className="remove-btn" onClick={() => removeProcessHandler(block.process)}>
-                X
+            {block.id && (
+              <button className="remove-btn" onClick={() => handleRemoveProcess(block.id)}>
+                Remove Process
+              </button>
+            )}
+            {(memoryType === 'Estática Personalizada' && !block.id) && (
+              <button className="remove-btn" onClick={() => handleRemovePartition(index)}>
+                Remove Partition
               </button>
             )}
           </div>
@@ -172,7 +150,7 @@ function Memory() {
             value={partitionSize}
             onChange={(e) => setPartitionSize(e.target.value)}
           />
-          <button className='btn-memory-input' onClick={handleAddPartition}>Agregar Partición</button>
+          <button className='btn-memory-input' onClick={handleAddPartition} >Agregar Partición</button>
         </div>
       )}
     </section>

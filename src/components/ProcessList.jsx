@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 
-import { 
-  getProcessQueueFromLocalStorage, 
-  setProcessQueueForLocalStorage, 
-  getMemoryFromLocalStorage, 
-  setMemoryForLocalStorage, 
-  resetLocalStorage 
-} from '../logic/LocalStorage'; 
+import {
+  getProcessQueueFromLocalStorage,
+  setProcessQueueForLocalStorage,
+  getMemoryFromLocalStorage,
+  setMemoryForLocalStorage,
+  resetLocalStorage
+} from '../logic/LocalStorage';
 import { findMemoryBlock } from '../logic/MemoryManagment';
 import { PROCESSES } from '../constants';
 
@@ -17,41 +17,38 @@ function ProcessList() {
   const [processList, setProcessList] = useState({});
 
   useEffect(() => {
-    const storedQueue = getProcessQueueFromLocalStorage(); // Carga los procesos desde localStorage
+    const storedQueue = getProcessQueueFromLocalStorage();
     if (Object.keys(storedQueue).length === 0) {
       setProcessList(PROCESSES);
-      setProcessQueueForLocalStorage(PROCESSES); // Guarda PROCESSES en localStorage
+      setProcessQueueForLocalStorage(PROCESSES);
     } else {
       setProcessList(storedQueue);
     }
-    // Inicializar memoria y cola de procesos
-    setProcessList(getProcessQueueFromLocalStorage());
-    // Escuchar el evento de cambio de memoria
-    const handleMemoryChange = () => {
+    const handleProcessQueueChange = () => {
       setProcessList(getProcessQueueFromLocalStorage());
     };
-    // Añadir el listener del evento
-    window.addEventListener('memoryChange', handleMemoryChange);
-    // Limpiar el listener al desmontar el componente
+    window.addEventListener('processQueueChange', handleProcessQueueChange);
     return () => {
-      window.removeEventListener('memoryChange', handleMemoryChange);
+      window.removeEventListener('processQueueChange', handleProcessQueueChange);
     };
   }, []);
 
   // Función para manejar la adición de procesos a la memoria
   const handleAddProcessToMemory = (process) => {
     let currentMemory = getMemoryFromLocalStorage();
-    // Buscar el bloque de memoria adecuado usando la lógica de MemoryManagement
     const blockIndex = findMemoryBlock(process, currentMemory);
 
     if (blockIndex !== -1 && process.memory <= currentMemory[blockIndex].size) {
-      currentMemory[blockIndex].process = process.id;
-      currentMemory[blockIndex].id = process.id;
-      currentMemory[blockIndex].name = process.name;
-      currentMemory[blockIndex].size -= process.memory;
-      currentMemory[blockIndex].image = process.image;
+      currentMemory[blockIndex] = {
+        ...currentMemory[blockIndex],
+        process: process.id,
+        id: process.id,
+        name: process.name,
+        memory: currentMemory[blockIndex].size - process.memory,
+        image: process.image,
+      };
 
-      setMemoryForLocalStorage(currentMemory); // Actualiza la memoria en localStorage
+      setMemoryForLocalStorage(currentMemory); // Solo actualiza localStorage
       setProcessList((prevList) => {
         const updatedList = { ...prevList };
         delete updatedList[process.id];
@@ -103,10 +100,10 @@ function ProcessList() {
 ProcessList.propTypes = {
   processList: PropTypes.objectOf(
     PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      memory: PropTypes.number.isRequired,
-      image: PropTypes.string.isRequired,
+      id: PropTypes.string,
+      name: PropTypes.string,
+      memory: PropTypes.number,
+      image: PropTypes.string,
     })
   ).isRequired,
   addProcessToMemory: PropTypes.func.isRequired,

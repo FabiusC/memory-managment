@@ -11,4 +11,7 @@ function App() {
   );
 }
 
+ProcessList.propTypes = {};
+Memory.propTypes = {};
+
 export default App;

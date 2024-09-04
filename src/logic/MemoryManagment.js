@@ -9,6 +9,7 @@ import {
     getProcessQueueFromLocalStorage,
     setAlgorithmTypeForLocalStorage,
     setIsCompactForLocalStorage,
+    setMemoryTypeForLocalStorage,
 } from './LocalStorage';
 
 export let memory = getMemoryFromLocalStorage();
@@ -43,6 +44,7 @@ export function saveToLocalStorage() {
 export function setMemoryType(type) {
     memoryType = type;
     memory = MEMORY_CONFIGURATIONS[memoryType];
+    setMemoryTypeForLocalStorage(memoryType);
     setMemoryForLocalStorage(memory);
 }
 export function setAlgorithmType(type) {
@@ -73,7 +75,7 @@ export function findMemoryBlock(process, memory) {
 // Lógica de Primer ajuste
 export function firstFit(process, memory) {
     for (let i = 0; i < memory.length; i++) {
-        if (!memory[i].process && memory[i].size >= process.memory) {
+        if (!memory[i].id && memory[i].size >= process.memory) {
             return i;
         }
     }
@@ -85,7 +87,7 @@ export function bestFit(process, memory) {
     let smallestFit = Infinity;
 
     memory.forEach((block, index) => {
-        if (!block.process && block.size >= process.memory && block.size < smallestFit) {
+        if (!block.id && block.size >= process.memory && block.size < smallestFit) {
             bestIndex = index;
             smallestFit = block.size;
         }
@@ -99,7 +101,7 @@ export function worstFit(process, memory) {
     let largestFit = -Infinity;
 
     memory.forEach((block, index) => {
-        if (!block.process && block.size >= process.memory && block.size > largestFit) {
+        if (!block.id && block.size >= process.memory && block.size > largestFit) {
             worstIndex = index;
             largestFit = block.size;
         }
@@ -110,9 +112,9 @@ export function worstFit(process, memory) {
 // Función de compactación
 export function compactMemory() {
     // Verificar si hay bloques libres entre los ocupados
-    if (memory.some((block, index) => block.process && memory[index + 1] && !memory[index + 1].process)) {
-        const occupied = memory.filter((block) => block.process);
-        const free = memory.filter((block) => !block.process);
+    if (memory.some((block, index) => block.id && memory[index + 1] && !memory[index + 1].id)) {
+        const occupied = memory.filter((block) => block.id);
+        const free = memory.filter((block) => !block.id);
         memory = [...occupied, ...free];
         saveToLocalStorage();
         console.log('Memoria compactada.');
@@ -123,16 +125,22 @@ export function compactMemory() {
 
 // Eliminar proceso de la memoria
 export function removeProcess(processId) {
+    memory = getMemoryFromLocalStorage();
     const updatedMemory = memory.map((block) => {
-        if (block.process === processId) {
-            return { process: null, size: block.size };
+        if (block.id === processId) {
+            return { 
+                process: null,
+                id: null,
+                name: null,
+                memory: null, 
+                image: null,
+                size: block.size, 
+            };
         }
         return block;
     });
-
     removeProcessFromMemory(processId, updatedMemory);
     memory = updatedMemory;
-    saveToLocalStorage();
 }
 
 // Obtener un proceso por su ID
@@ -188,7 +196,6 @@ export function addPartition(size) {
     memory.push(newPartition);
     // Actualizar la memoria en el localStorage
     setMemoryForLocalStorage(memory);
-    console.log(`Nueva partición de ${size} KB añadida a la memoria.`);
 }
 // Quitar una particion de la memoria
 export function removePartition(index) {
@@ -203,4 +210,25 @@ export function removePartition(index) {
     } else {
       console.error('Índice inválido para eliminar la partición.');
     }
-  }
+}
+
+// Método para calcular el tamaño libre de un bloque
+export function calculateFreeSize(block) {
+    // Si el bloque tiene un proceso, calcula el tamaño libre restando el tamaño del proceso
+    if (block.memory) {
+        console.log(`Block size ${block.size} - Block memory ${block.memory}`);
+        return block.size - block.memory; // Restar el tamaño del proceso al tamaño total del bloque
+    }
+    // Si no hay proceso, retornar el tamaño total del bloque
+    return block.size;
+}
+// Método para calcular la cantidad total de memoria libre en todos los bloques
+export function calculateTotalFreeMemory() {
+    const memory = getMemoryFromLocalStorage(); // Obtener la memoria actualizada desde el localStorage
+    // Reducir la memoria sumando el tamaño libre de cada bloque
+    const totalFreeMemory = memory.reduce((total, block) => {
+        // Sumar el tamaño libre de cada bloque utilizando el método calculateFreeSize
+        return total + calculateFreeSize(block);
+    }, 0); // Iniciar la suma desde cero
+    return totalFreeMemory; // Retornar el total de memoria libre
+}

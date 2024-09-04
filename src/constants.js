@@ -1,104 +1,104 @@
 //CONSTANTS USED IN THE APPLICATION
 
 export const PROCESSES = {
-    P1: {
-        id: 'P1',
+    1: {
+        id: '1',
         name: 'WhatsApp',
         memory: 200,
         image: "https://svgl.app/library/whatsapp.svg"
     },
-    P2: {
-        id: 'P2',
+    2: {
+        id: '2',
         name: 'Telegram',
         memory: 300,
         image: "https://svgl.app/library/telegram.svg"
     },
-    P3: {
-        id: 'P3',
+    3: {
+        id: '3',
         name: 'Netflix',
         memory: 400, //Memory usage in KB
         image: "https://svgl.app/library/netflix.svg",
     },
-    P4: {
-        id: 'P4',
+    4: {
+        id: '4',
         name: 'Discord',
         memory: 400,
         image: "https://svgl.app/library/discord.svg",
     },
-    P5: {
-        id: 'P5',
+    5: {
+        id: '5',
         name: 'Zoom',
         memory: 500,
         image: "https://svgl.app/library/zoom.svg",
     },
-    P6: {
-        id: 'P6',
+    6: {
+        id: '6',
         name: 'Spotify',
         memory: 700,
         image: "https://svgl.app/library/spotify.svg",
     },
-    P7: {
-        id: 'P7',
-        name: 'Prime Video',
+    7: {
+        id: '7',
+        name: 'rime Video',
         memory: 800,
         image: "https://svgl.app/library/prime-video.svg",
     },
-    P8: {
-        id: 'P8',
+    8: {
+        id: '8',
         name: 'Visual Studio Code',
         memory: 1000,
         image: "https://svgl.app/library/vscode.svg",
     },
-    P9: {
-        id: 'P9',
+    9: {
+        id: '9',
         name: 'Bing',
         memory: 1000,
         image: "https://svgl.app/library/bing.svg", 
     },
-    P10: {
-        id: 'P10',
+    10: {
+        id: '10',
         name: 'Twitch',
         memory: 1200,
         image: "https://svgl.app/library/twitch.svg",
     },
-    P11: {
-        id: 'P11',
+    11: {
+        id: '11',
         name: 'Youtube Music',
         memory: 1500,
         image: "https://svgl.app/library/youtube_music.svg",
     },
-    P12: {
-        id: 'P12',
+    12: {
+        id: '12',
         name: 'Disney+',
         memory: 1500,
         image: "https://svgl.app/library/disneyplus.svg",
     },
-    P13: {
-        id: 'P13',
+    13: {
+        id: '13',
         name: 'Chrome',
         memory: 2000,
         image: "https://svgl.app/library/chrome.svg",
     },
-    P14: {
-        id: 'P14',
-        name: 'Photoshop',
+    14: {
+        id: '14',
+        name: 'hotoshop',
         memory: 2500,
         image: "https://svgl.app/library/photoshop.svg",
     },
-    P15: {
-        id: 'P15',
+    15: {
+        id: '15',
         name: 'Illustrator',
         memory: 3000,
         image: "https://svgl.app/library/illustrator.svg",
     },
-    P16: {
-        id: 'P18',
+    16: {
+        id: '18',
         name: 'Blender',
         memory: 4000,
         image: "https://svgl.app/library/blender.svg",
     },
-    P17: {
-        id: 'P19',
+    17: {
+        id: '19',
         name: 'Unity',
         memory: 5000,
         image: "https://svgl.app/library/unity_dark.svg",

@@ -4,7 +4,19 @@ import { getProcessByIdFromPROCESSES } from './MemoryManagment';
 
 // Getter & Setter for Memory
 export const getMemoryFromLocalStorage = () => {
-    return JSON.parse(localStorage.getItem('memory')) || [];
+    try {
+        const memory = JSON.parse(localStorage.getItem('memory'));
+        // Verificar si memory es un array, de lo contrario devolver un array vacío
+        if (Array.isArray(memory)) {
+            return memory;
+        } else {
+            console.error('Error al obtener la memoria del localStorage: El valor no es un array válido', memory);
+            return []; // Retornar array vacío en caso de error
+        }
+    } catch (error) {
+        console.error('Error al parsear la memoria desde localStorage:', error);
+        return []; // Retornar array vacío en caso de error
+    }
 };
 export const setMemoryForLocalStorage = (memory) => {
     try {
@@ -16,11 +28,21 @@ export const setMemoryForLocalStorage = (memory) => {
 };
 // Getter & Setter for ProcessQueue
 export const getProcessQueueFromLocalStorage = () => {
-    return JSON.parse(localStorage.getItem('processQueue')) || {};
+    try {
+        const processQueue = JSON.parse(localStorage.getItem('processQueue'));
+        return processQueue || {}; // Retorna un objeto vacío si el valor es null o undefined
+    } catch (error) {
+        console.error('Error al obtener la cola de procesos del localStorage:', error);
+        return {}; // Retorna un objeto vacío en caso de error
+    }
 };
 export const setProcessQueueForLocalStorage = (queue) => {
-    localStorage.setItem('processQueue', JSON.stringify(queue));
-    emitMemoryChange();
+    try {
+        localStorage.setItem('processQueue', JSON.stringify(queue));
+        emitProcessQueueChange();
+    } catch (error) {
+        console.error('Error al guardar la cola de procesos en localStorage:', error);
+    }
 };
 // Getter & Setter for Memory and Algorithm Types and IsCompact
 export const getMemoryTypeFromLocalStorage = () => {
@@ -29,7 +51,6 @@ export const getMemoryTypeFromLocalStorage = () => {
 export const setMemoryTypeForLocalStorage = (type) => {
     localStorage.setItem('memoryType', type);
     emitMemoryChange();
-
 };
 export const getAlgorithmTypeFromLocalStorage = () => {
     return localStorage.getItem('algorithmType') || 'Primer ajuste';
@@ -95,7 +116,6 @@ export const addProcessToProcessQueue = (processId) => {
         image: process.image,
     };
     setProcessQueueForLocalStorage(processQueue); // Actualizar la cola de procesos en el localStorage
-    emitProcessQueueChange();
 };
 
 // Función para resetear el localStorage a su estado inicial
