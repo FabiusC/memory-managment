@@ -11,8 +11,15 @@ import {
   getIsCompact,
   setCompactMode,
   removeProcess,
+  addPartition,
+  removePartition
 } from '../logic/MemoryManagment';
-import { getMemory } from '../logic/LocalStorage';
+import {
+  addProcessToProcessQueue,
+  getAlgorithmTypeFromLocalStorage,
+  getIsCompactFromLocalStorage,
+  getMemoryFromLocalStorage
+} from '../logic/LocalStorage';
 import { MEMORY_TYPES } from '../constants';
 
 function Memory() {
@@ -20,30 +27,65 @@ function Memory() {
   const [memoryType, setLocalMemoryType] = useState(getMemoryType());
   const [algorithmType, setLocalAlgorithmType] = useState(getAlgorithmType());
   const [isCompact, setLocalIsCompact] = useState(getIsCompact());
+  const [partitionSize, setPartitionSize] = useState('');
 
   // Inicializar memoria y cola de procesos
   useEffect(() => {
+    // Inicializar memoria y cola de procesos
     initializeMemoryAndQueue();
-    setLocalMemory(getMemory());
+    setLocalMemory(getMemoryFromLocalStorage());
+    // Escuchar el evento de cambio de memoria
+    const handleMemoryChange = () => {
+      setLocalMemory(getMemoryFromLocalStorage());
+    };
+    // Añadir el listener del evento
+    window.addEventListener('memoryChange', handleMemoryChange);
+    // Limpiar el listener al desmontar el componente
+    return () => {
+      window.removeEventListener('memoryChange', handleMemoryChange);
+    };
   }, []);
 
   const handleMemoryTypeChange = (event) => {
     const selectedType = event.target.value;
     setLocalMemoryType(selectedType);
     setMemoryType(selectedType);
-    setLocalMemory(getMemory());
+    setLocalMemory(getMemoryFromLocalStorage());
   };
 
   const handleAlgorithmChange = (event) => {
     const selectedType = event.target.value;
     setLocalAlgorithmType(selectedType);
     setAlgorithmType(selectedType);
+    setLocalAlgorithmType(getAlgorithmTypeFromLocalStorage());
   };
 
   const handleCompactChange = (event) => {
     const compact = event.target.checked;
     setLocalIsCompact(compact);
     setCompactMode(compact);
+    setLocalIsCompact(getIsCompactFromLocalStorage());
+  };
+
+  const removeProcessHandler = (processId) => {
+    addProcessToProcessQueue(processId);
+    removeProcess(processId);
+    setLocalMemory(getMemoryFromLocalStorage());
+  };
+
+  const handleAddPartition = () => {
+    const size = parseInt(partitionSize, 10);
+    if (!isNaN(size) && size > 0) {
+      addPartition(size); // Llamar al método para agregar una partición
+      setPartitionSize(''); // Limpiar el input después de añadir la partición
+    } else {
+      alert('Ingrese un tamaño válido para la partición.');
+    }
+  };
+
+  const handleRemovePartition = (index) => {
+    removePartition(index); // Llama al método para eliminar la partición en el MemoryManagement
+    setLocalMemory(getMemoryFromLocalStorage()); // Actualiza el estado de la memoria local después de la eliminación
   };
 
   // eslint-disable-next-line no-unused-vars
@@ -70,13 +112,8 @@ function Memory() {
     if (!success) {
       alert('No hay suficiente espacio para este proceso.');
     } else {
-      setLocalMemory(getMemory());
+      setLocalMemory(getMemoryFromLocalStorage());
     }
-  };
-
-  const removeProcessHandler = (processId) => {
-    removeProcess(processId);
-    setLocalMemory(getMemory());
   };
 
   return (
@@ -108,24 +145,36 @@ function Memory() {
           </select>
         </div>
       </header>
-      <div className="memory-visualization">
+      <div className={`memory-visualization`}>
         {localMemory.map((block, index) => (
           <div key={index} className="memory-wrapper">
-            <span className="memory-status">
-              {block.process ? (
-                <p>Proceso en Memoria: {block.process}, Tamaño: {block.size} KB</p>
+            <span className={`memory-status ${(memoryType === 'Estática Personalizada' && 'custom-memory')}`}>
+              {block.name ? (
+                <p>{block.name}, Tamaño: {block.size} KB</p>
               ) : (
                 <p>Partición Disponible, Espacio Libre: {block.size} KB</p>
               )}
             </span>
             {block.process && (
               <button className="remove-btn" onClick={() => removeProcessHandler(block.process)}>
-                Eliminar
+                X
               </button>
             )}
           </div>
         ))}
       </div>
+      {memoryType === 'Estática Personalizada' && (
+        <div className="custom-partition-creator">
+          <input
+            type="number"
+            className='memory-input'
+            placeholder="Tamaño de la partición en KB"
+            value={partitionSize}
+            onChange={(e) => setPartitionSize(e.target.value)}
+          />
+          <button className='btn-memory-input' onClick={handleAddPartition}>Agregar Partición</button>
+        </div>
+      )}
     </section>
   );
 }

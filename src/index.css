@@ -1,9 +1,9 @@
 :root {
-  max-width: none !important;
 }
 
 body {
-  margin: 0;
+  margin: 20px;
+  height: 100%;
   font-family: 'Roboto', sans-serif;
   align-items: center;
   justify-content: center;
@@ -21,6 +21,7 @@ body {
 
 .process-list-container {
   width: 50%;
+  min-height: 90vh;
   background-color: #2c2c2c;
   padding: 20px;
   border-radius: 8px;
@@ -43,23 +44,6 @@ body {
   justify-content: end;
 }
 
-.btn {
-  padding: 10px 20px;
-  background-color: #1f1f1f;
-  color: white;
-  cursor: pointer;
-  border-color: #ccc;
-  border-width: 1px;
-  border-radius: 5px;
-  margin: 10px;
-  transition: background-color 0.1s;
-}
-
-.btn:hover {
-  background-color: #ffffff86;
-  color: black;
-}
-
 .btn-reset {
   padding: 10px 20px;
   background-color: #ff00003b;
@@ -70,12 +54,13 @@ body {
   border-width: 1px;
   border-radius: 5px; 
   margin: 10px;
-  transition: background-color 0.1s;
+  transition: all 0.3s;
 }
 
 .btn-reset:hover {
   background-color: #ff000086;
   color: white;
+  transform: scale(1.1);
 }
 
 .processes-list {
@@ -88,14 +73,22 @@ body {
 
 .process-card {
   background-color: #3c3c3c;
+  border: 1px solid #ccc;
   border-radius: 8px;
   padding: 10px;
   text-align: center;
+  transition: all 0.3s;
+}
+
+.process-card:hover {
+  border-color: #007bff;
+  transform: scale(1.05);
 }
 
 .process-image {
   width: 50px;
   max-height: 50px;
+  min-height: 50px;
   height: auto;
   object-fit: fill;
   border-radius: 5px;
@@ -115,6 +108,7 @@ body {
 
 .memory-container {
   width: 50%;
+  min-height: 90vh;
   background-color: #2c2c2c;
   padding: 20px;
   border-radius: 8px;
@@ -173,7 +167,7 @@ body {
   display: none;
 }
 
-.memory-wrapper:hover .remove-btn {
+.memory-wrapper:hover .remove-btn{
   display: block;
 }
 
@@ -187,18 +181,50 @@ body {
 
 .memory-status {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
+  width: 90%;
+  height: 90%;
+  border-radius: 5px;
+  border: 2px solid #ccc;
+}
+
+.memory-status p {
+  margin: 10px;
+  color: #fff;
+}
+
+.custom-memory {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  gap: 10px;
+  transition: all 0.3s;
+}
+
+.custom-memory:hover {
+  border-color: #ff0000;
+  transform: scale(0.95);
+}
+
+.custom-partition-creator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px;
+  gap: 10px;
 }
 
 .memory-input {
-  padding: 8px;
   border: 1px solid #ccc;
   border-radius: 5px;
   background-color: #1a1a1a;
   color: #fff;
   margin-right: 10px;
-  width: 120px;
+  width: 90%;
+  min-height: 30px;
   outline: none;
 }
 
@@ -208,6 +234,24 @@ body {
 
 .memory-input:focus {
   border-color: #007bff;
+}
+
+.btn-memory-input {
+  padding: 8px;
+  min-height: 30px;
+  width: 90%;
+  height: 90%;
+  background-color: #1a1a1a;
+  color: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-memory-input:hover {
+  background-color: #ffffff25;
+  transform: scale(1.1);
 }
 
 .compact-checkbox {

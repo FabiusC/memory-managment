@@ -1,54 +1,105 @@
 // LocalStorage.js
 import { MEMORY_CONFIGURATIONS, PROCESSES } from '../constants';
+import { getProcessByIdFromPROCESSES } from './MemoryManagment';
 
-export const getMemory = () => {
+// Getter & Setter for Memory
+export const getMemoryFromLocalStorage = () => {
     return JSON.parse(localStorage.getItem('memory')) || [];
 };
-
-export const setMemory = (memory) => {
-    localStorage.setItem('memory', JSON.stringify(memory));
+export const setMemoryForLocalStorage = (memory) => {
+    try {
+        localStorage.setItem('memory', JSON.stringify(memory));
+        emitMemoryChange();
+    } catch (error) {
+        console.error('Error al guardar la memoria en localStorage:', error);
+    }
 };
-
-export const getProcessQueue = () => {
+// Getter & Setter for ProcessQueue
+export const getProcessQueueFromLocalStorage = () => {
     return JSON.parse(localStorage.getItem('processQueue')) || {};
 };
-
-export const setProcessQueue = (queue) => {
+export const setProcessQueueForLocalStorage = (queue) => {
     localStorage.setItem('processQueue', JSON.stringify(queue));
+    emitMemoryChange();
+};
+// Getter & Setter for Memory and Algorithm Types and IsCompact
+export const getMemoryTypeFromLocalStorage = () => {
+    return localStorage.getItem('memoryType') || 'Estática (16x1MB)';
+};
+export const setMemoryTypeForLocalStorage = (type) => {
+    localStorage.setItem('memoryType', type);
+    emitMemoryChange();
+
+};
+export const getAlgorithmTypeFromLocalStorage = () => {
+    return localStorage.getItem('algorithmType') || 'Primer ajuste';
+};
+export const setAlgorithmTypeForLocalStorage = (type) => {
+    localStorage.setItem('algorithmType', type);
+    emitMemoryChange();
+};
+export const getIsCompactFromLocalStorage = () => {
+    return localStorage.getItem('isCompact') === 'true';
+};
+export const setIsCompactForLocalStorage = (compact) => {
+    localStorage.setItem('isCompact', compact);
+    emitMemoryChange();
 };
 
-// Añadir un proceso a la memoria y actualizar el estado
-export const addProcessToMemory = (process, updatedMemory) => {
-    let processQueue = getProcessQueue();
+// Observer for changes in memory and processQueue
+const emitMemoryChange = () => {
+    const event = new Event('memoryChange');
+    window.dispatchEvent(event);
+};
+const emitProcessQueueChange = () => {
+    const event = new Event('processQueueChange');
+    window.dispatchEvent(event);
+}
 
+// Add a process to memory
+export const addProcessToMemory = (process, updatedMemory) => {
+    let processQueue = getProcessQueueFromLocalStorage();
     if (processQueue[process.id]) {
         delete processQueue[process.id];
-        setProcessQueue(processQueue);
+        setProcessQueueForLocalStorage(processQueue);
     }
-
     if (updatedMemory && Array.isArray(updatedMemory)) {
-        setMemory(updatedMemory);
+        setMemoryForLocalStorage(updatedMemory);
+        emitMemoryChange(); 
     } else {
         console.error('Error: updatedMemory is not valid', updatedMemory);
     }
 };
 
-// Eliminar un proceso de la memoria
+// Delete a process from memory
 export const removeProcessFromMemory = (processId, updatedMemory) => {
-    const processQueue = getProcessQueue();
+    const processQueue = getProcessQueueFromLocalStorage();
     const processToRemove = processQueue[processId];
-
     if (processToRemove) {
         processQueue[processToRemove.id] = processToRemove;
-        setProcessQueue(processQueue);
+        setProcessQueueForLocalStorage(processQueue);
     }
+    setMemoryForLocalStorage(updatedMemory);
+    emitMemoryChange(); 
+};
 
-    setMemory(updatedMemory);
+// Add process to ProcessQueue
+export const addProcessToProcessQueue = (processId) => {
+    let process = getProcessByIdFromPROCESSES(processId);
+    let processQueue = getProcessQueueFromLocalStorage();
+    // Añadir el proceso de vuelta a la cola con su ID como clave
+    processQueue[process.id] = {
+        id: process.id,
+        name: process.name,
+        memory: process.memory,
+        image: process.image,
+    };
+    setProcessQueueForLocalStorage(processQueue); // Actualizar la cola de procesos en el localStorage
+    emitProcessQueueChange();
 };
 
 // Función para resetear el localStorage a su estado inicial
 export const resetLocalStorage = () => {
-    setProcessQueue(PROCESSES); // Resetea la cola de procesos al estado inicial
-    setMemory(MEMORY_CONFIGURATIONS['Estática (16x1MB)']); // Resetea la memoria a la configuración inicial
-    console.log('LocalStorage reset to initial state.');
+    setProcessQueueForLocalStorage(PROCESSES); // Resetea la cola de procesos al estado inicial
+    setMemoryForLocalStorage(MEMORY_CONFIGURATIONS['Estática (16x1MB)']); // Resetea la memoria a la configuración inicial
 };
