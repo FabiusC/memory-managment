@@ -5,9 +5,10 @@ import {
   setProcessQueueForLocalStorage,
   getMemoryFromLocalStorage,
   setMemoryForLocalStorage,
-  resetLocalStorage
+  resetLocalStorage,
+  getMemoryTypeFromLocalStorage
 } from '../logic/LocalStorage';
-import { findMemoryBlock } from '../logic/MemoryManagment';
+import { addPartition, calculateTotalPartitionSize, findMemoryBlock } from '../logic/MemoryManagment';
 import { PROCESSES } from '../constants';
 
 import PropTypes from 'prop-types';
@@ -36,27 +37,61 @@ function ProcessList() {
   // Función para manejar la adición de procesos a la memoria
   const handleAddProcessToMemory = (process) => {
     let currentMemory = getMemoryFromLocalStorage();
-    const blockIndex = findMemoryBlock(process, currentMemory);
 
-    if (blockIndex !== -1 && process.memory <= currentMemory[blockIndex].size) {
-      currentMemory[blockIndex] = {
-        ...currentMemory[blockIndex],
-        process: process.id,
-        id: process.id,
-        name: process.name,
-        memory: currentMemory[blockIndex].size - process.memory,
-        image: process.image,
-      };
+    // Verificar si la memoria es dinámica y hay suficiente espacio libre
+    if (getMemoryTypeFromLocalStorage() === 'Dinamica' && process.memory <= calculateTotalPartitionSize()) {
+      // Crear una nueva partición para el proceso
+      addPartition(process.memory);
+      // Obtener la memoria actualizada después de añadir la partición
+      currentMemory = getMemoryFromLocalStorage();
+      // Encontrar el índice de la partición recién creada (última en la lista)
+      const blockIndex = currentMemory.length - 1;
 
-      setMemoryForLocalStorage(currentMemory); // Solo actualiza localStorage
-      setProcessList((prevList) => {
-        const updatedList = { ...prevList };
-        delete updatedList[process.id];
-        setProcessQueueForLocalStorage(updatedList);
-        return updatedList;
-      });
+      // Validar si se puede agregar el proceso a la partición
+      if (process.memory <= currentMemory[blockIndex].size) {
+        currentMemory[blockIndex] = {
+          ...currentMemory[blockIndex],
+          process: process.id,
+          id: process.id,
+          name: process.name,
+          memory: process.memory,
+          image: process.image,
+        };
+
+        setMemoryForLocalStorage(currentMemory);
+        setProcessList((prevList) => {
+          const updatedList = { ...prevList };
+          delete updatedList[process.id];
+          setProcessQueueForLocalStorage(updatedList);
+          return updatedList;
+        });
+      }
     } else {
-      alert('El proceso no cabe en el bloque seleccionado.');
+      // Si no hay suficiente memoria libre, buscar un bloque disponible
+      const blockIndex = findMemoryBlock(process, currentMemory);
+
+      if (blockIndex !== -1 && process.memory <= currentMemory[blockIndex].size) {
+        // Agregar el proceso al bloque encontrado
+        currentMemory[blockIndex] = {
+          ...currentMemory[blockIndex],
+          process: process.id,
+          id: process.id,
+          name: process.name,
+          memory: process.memory,
+          image: process.image,
+        };
+
+        setMemoryForLocalStorage(currentMemory);
+        setProcessList((prevList) => {
+          const updatedList = { ...prevList };
+          delete updatedList[process.id];
+          setProcessQueueForLocalStorage(updatedList);
+          return updatedList;
+        });
+      } else {
+        // Alertar si no hay espacio disponible en ningún bloque
+        alert('No hay suficiente espacio disponible para este proceso.');
+      }
     }
   };
 

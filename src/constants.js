@@ -39,7 +39,7 @@ export const PROCESSES = {
     },
     7: {
         id: '7',
-        name: 'rime Video',
+        name: 'Prime Video',
         memory: 800,
         image: "https://svgl.app/library/prime-video.svg",
     },
@@ -92,13 +92,13 @@ export const PROCESSES = {
         image: "https://svgl.app/library/illustrator.svg",
     },
     16: {
-        id: '18',
+        id: '16',
         name: 'Blender',
         memory: 4000,
         image: "https://svgl.app/library/blender.svg",
     },
     17: {
-        id: '19',
+        id: '17',
         name: 'Unity',
         memory: 5000,
         image: "https://svgl.app/library/unity_dark.svg",
@@ -107,18 +107,20 @@ export const PROCESSES = {
 
 export const MEMORY_TYPES = [
     'Estática (16x1MB)',
-    'Estática (4,2,1,0.5MB)',
+    'Estática (4,3, 2, 1, 0.5MB)',
     'Estática Personalizada',
-    'Variable'
+    'Dinamica'
 ];
 
 export const MEMORY_CONFIGURATIONS = {
     'Estática (16x1MB)': Array(16).fill({ process: null, size: 1024 }), // 16 partitions of 1MB
-    'Estática (4,2,1,0.5MB)': [
-        { process: null, size: 4096 }, // 1 partition of 4MB
+    'Estática (4,3, 2, 1, 0.5MB)': [
+        { process: null, size: 4096 },                   // 1 partition of 4MB
         ...Array(2).fill({ process: null, size: 2048 }), // 2 partitions of 2MB
         ...Array(4).fill({ process: null, size: 1024 }), // 4 partitions of 1MB
-        ...Array(8).fill({ process: null, size: 512 })  // 8 partitions of 500KB
+        ...Array(6).fill({ process: null, size: 512  })  // 8 partitions of 0.5MB
     ],
-    'Estática Personalizada': [] // Starts empty, partitions can be added dynamically
+
+    'Estática Personalizada': [], // Starts empty, partitions can be added dynamically
+    'Dinamica': [] // Starts empty, partitions can be added dynamically
 };

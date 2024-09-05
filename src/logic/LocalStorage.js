@@ -1,6 +1,6 @@
 // LocalStorage.js
-import { MEMORY_CONFIGURATIONS, PROCESSES } from '../constants';
-import { getProcessByIdFromPROCESSES } from './MemoryManagment';
+import { PROCESSES } from '../constants';
+import { getProcessByIdFromPROCESSES, setMemoryType } from './MemoryManagment';
 
 // Getter & Setter for Memory
 export const getMemoryFromLocalStorage = () => {
@@ -91,7 +91,6 @@ export const addProcessToMemory = (process, updatedMemory) => {
         console.error('Error: updatedMemory is not valid', updatedMemory);
     }
 };
-
 // Delete a process from memory
 export const removeProcessFromMemory = (processId, updatedMemory) => {
     const processQueue = getProcessQueueFromLocalStorage();
@@ -120,6 +119,6 @@ export const addProcessToProcessQueue = (processId) => {
 
 // Función para resetear el localStorage a su estado inicial
 export const resetLocalStorage = () => {
-    setProcessQueueForLocalStorage(PROCESSES); // Resetea la cola de procesos al estado inicial
-    setMemoryForLocalStorage(MEMORY_CONFIGURATIONS['Estática (16x1MB)']); // Resetea la memoria a la configuración inicial
+    setProcessQueueForLocalStorage(PROCESSES);
+    setMemoryType('Estática (16x1MB)');
 };

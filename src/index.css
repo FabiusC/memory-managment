@@ -4,13 +4,12 @@
 body {
   margin: 20px;
   height: 100%;
-  font-family: 'Roboto', sans-serif;
+  font-family: "Roboto", sans-serif;
   align-items: center;
   justify-content: center;
   background-color: #1a1a1a;
   color: #fff;
 }
-
 .container {
   display: flex;
   gap: 20px;
@@ -18,32 +17,28 @@ body {
   color: #fff;
   min-height: 100%;
 }
-
+/* PROCESS LIST STYLES --------------------------------------------------------------------*/
 .process-list-container {
-  width: 50%;
+  width: 40%;
   min-height: 90vh;
   background-color: #2c2c2c;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 10px;
 }
-
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
-
 .title {
   font-size: 24px;
   margin-left: 20px;
 }
-
 .controls-container {
   margin: 0;
   justify-content: end;
 }
-
 .btn-reset {
   padding: 10px 20px;
   background-color: #ff00003b;
@@ -52,39 +47,34 @@ body {
   cursor: pointer;
   border-color: #ccc;
   border-width: 1px;
-  border-radius: 5px; 
+  border-radius: 5px;
   margin: 10px;
   transition: all 0.3s;
 }
-
 .btn-reset:hover {
   background-color: #ff000086;
   color: white;
   transform: scale(1.1);
 }
-
 .processes-list {
   list-style: none;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 10px;
 }
-
 .process-card {
   background-color: #3c3c3c;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 5px;
   padding: 10px;
   text-align: center;
   transition: all 0.3s;
 }
-
 .process-card:hover {
   border-color: #007bff;
   transform: scale(1.05);
 }
-
 .process-image {
   width: 50px;
   max-height: 50px;
@@ -94,106 +84,159 @@ body {
   border-radius: 5px;
   margin-bottom: 10px;
 }
-
 .process-info {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
-.process-id,
+.process-id {
+  font-size: 15px;
+  color: #f0f0f0;
+}
 .process-memory {
+  color: #e0e0e0;
+  font-size: 14px;
   margin: 2px 0;
 }
-
+/* MEMORY STYLES --------------------------------------------------------------------*/
 .memory-container {
-  width: 50%;
+  width: 60%;
   min-height: 90vh;
   background-color: #2c2c2c;
   padding: 20px;
-  border-radius: 8px;
-}
-
-.memory-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.memory-controls {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-.select-memory-type, .select-algorithm-type {
-  padding: 5px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  background-color: #1a1a1a;
-  color: white;
-}
-
-.memory-visualization {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  background-color: #1a1a1a;
-  padding: 10px;
-  border-radius: 8px;
-}
-
-.memory-wrapper {
-  position: relative;
-  display: flex;
+  border-radius: 10px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 10px;
 }
-
-.remove-btn {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background-color: red;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 5px;
-  cursor: pointer;
-  display: none;
+.memory-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
 }
-
-.memory-wrapper:hover .remove-btn{
-  display: block;
+.memory-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.memory-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.memory-visualization-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: 80vh;
+  background-color: #2c2c2c;
+  border-radius: 5px;
+}
+.blocks-wrapper {
+  display: flex;
+  margin-top: 11%;
+  margin-left: 20px;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
 }
 
 .memory-block {
-  background-color: #3c3c3c;
-  padding: 10px;
-  text-align: center;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: small;
+  width: 100% !important;
+  padding: 4px;
   border-radius: 5px;
   color: #fff;
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
 .memory-status {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 90%;
-  height: 90%;
   border-radius: 5px;
-  border: 2px solid #ccc;
+  border: 2px solid #88e7ff;
 }
-
+.memory-block-with-process {
+  border-color: #88ffc3;
+}
+.memory-block-with-process:hover {
+  border-color: #56db78;
+}
 .memory-status p {
-  margin: 10px;
+  margin: 5px;
   color: #fff;
 }
+.chart {
+  width: 80% !important; 
+  height: 100% !important; 
+  background-color: #2c2c2c; 
+  border: 1px solid #ffffff;
+  border-radius: 5px;
+  margin: 0;
+  opacity: 1; 
+  transition: all 0.3s;
+}
 
+.chart canvas {
+  image-rendering: auto; 
+}
+
+/* Media queries para adaptabilidad */
+@media (max-width: 768px) {
+  .chart {
+    width: 90%; /* Ajusta el ancho en pantallas más pequeñas */
+    height: 300px; /* Ajusta la altura para pantallas móviles */
+  }
+}
+
+/* Memory Controls ================================================================== */
+.select-memory-type,
+.select-algorithm-type {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  background-color: #1a1a1a;
+  color: white;
+}
+.remove-btn {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px;
+  cursor: pointer;
+  display: none;
+}
+.memory-block:hover .remove-btn {
+  display: block;
+}
+.remove-partition-btn {
+  position: absolute;
+  top: -20px;
+  right: -25px;
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px;
+  cursor: pointer;
+  display: none;
+}
+.memory-block:hover .remove-partition-btn {
+  display: block;
+}
 .custom-memory {
   display: flex;
   justify-content: center;
@@ -203,12 +246,10 @@ body {
   gap: 10px;
   transition: all 0.3s;
 }
-
 .custom-memory:hover {
   border-color: #ff0000;
   transform: scale(0.95);
 }
-
 .custom-partition-creator {
   display: flex;
   justify-content: center;
@@ -216,7 +257,6 @@ body {
   margin: 10px;
   gap: 10px;
 }
-
 .memory-input {
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -227,15 +267,12 @@ body {
   min-height: 30px;
   outline: none;
 }
-
 .memory-input::placeholder {
   color: #888;
 }
-
 .memory-input:focus {
   border-color: #007bff;
 }
-
 .btn-memory-input {
   padding: 8px;
   min-height: 30px;
@@ -248,24 +285,20 @@ body {
   cursor: pointer;
   transition: all 0.3s;
 }
-
 .btn-memory-input:hover {
   background-color: #ffffff25;
   transform: scale(1.1);
 }
-
 .compact-checkbox {
   display: flex;
   align-items: center;
   margin-right: 15px;
   color: #fff;
 }
-
 .checkbox {
   margin-right: 8px;
   accent-color: #000000; /* Cambia el color del checkbox */
 }
-
 .checkbox:focus {
   outline: none;
   border-color: #707070;
