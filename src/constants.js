@@ -1,6 +1,12 @@
 //CONSTANTS USED IN THE APPLICATION
 
 export const PROCESSES = {
+    0: {
+        id: '0',
+        name: 'SO',
+        memory: 1024,
+        image: 'https://svgl.app/library/windows.svg',
+    },
     1: {
         id: '1',
         name: 'WhatsApp',

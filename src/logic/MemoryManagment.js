@@ -10,6 +10,8 @@ import {
     setAlgorithmTypeForLocalStorage,
     setIsCompactForLocalStorage,
     setMemoryTypeForLocalStorage,
+    getMemoryTypeFromLocalStorage,
+    getAlgorithmTypeFromLocalStorage,
 } from './LocalStorage';
 
 export let memory = getMemoryFromLocalStorage();
@@ -63,6 +65,7 @@ export function setCompactMode(compact) {
     setIsCompactForLocalStorage(isCompact);
 }
 
+// ==================================================== Algoritmos para agregar procesos a memoria/
 // Encuentra el índice del bloque de memoria basado en el algoritmo seleccionado
 export function findMemoryBlock(process, memory) {
     const algorithm = getAlgorithmType();
@@ -78,7 +81,6 @@ export function findMemoryBlock(process, memory) {
             return -1;
     }
 }
-
 // Lógica de Primer ajuste
 export function firstFit(process, memory) {
     for (let i = 0; i < memory.length; i++) {
@@ -116,52 +118,93 @@ export function worstFit(process, memory) {
 
     return worstIndex;
 }
+
+// =========================================================== Funciones para manipular la memoria/
 // Función de compactación
+
 export function compactMemory() {
     // Obtener la memoria actual desde el localStorage
     let memory = getMemoryFromLocalStorage();
 
+    // Verificar si la memoria es dinámica
+    const isDynamicMemory = getMemoryTypeFromLocalStorage() === 'Dinamica';
+
     // Filtrar los bloques que están ocupados (tienen un proceso) y los bloques libres
-    const occupiedBlocks = memory.filter(block => block.process !== null); // Bloques con procesos
-    const freeBlocks = memory.filter(block => block.process === null); // Bloques libres
+    let occupiedBlocks = memory.filter(block => block.process !== null); // Bloques con procesos
+    let freeBlocks = memory.filter(block => block.process === null); // Bloques libres
 
-    // Ordenar los bloques ocupados en orden ascendente de tamaño
-    occupiedBlocks.sort((a, b) => a.size - b.size);
-
-    // Crear una nueva lista de bloques de memoria compactada
-    let compactedMemory = [];
-    let remainingMemory = [...freeBlocks]; // Copia de los bloques libres para reubicar
-
-    occupiedBlocks.forEach(processBlock => {
-        // Buscar el primer bloque libre que pueda contener el proceso actual
-        const indexToInsert = remainingMemory.findIndex(freeBlock => freeBlock.size >= processBlock.memory);
-        if (indexToInsert !== -1) {
-            // Si se encuentra un bloque adecuado, ubicar el proceso allí y ajustar el tamaño del bloque libre
-            remainingMemory[indexToInsert].size -= processBlock.memory;
-            // Si queda espacio en el bloque, añadirlo a la lista de bloques libres
-            if (remainingMemory[indexToInsert].size > 0) {
-                compactedMemory.push({ process: null, size: remainingMemory[indexToInsert].size });
+    if (isDynamicMemory) {
+        console.log(`La memoria es Dinamica`);
+        // Si la memoria es dinámica, eliminar las particiones vacías
+        freeBlocks.forEach((block) => {
+            const blockIndex = memory.indexOf(block);
+            removePartition(blockIndex); // Eliminar la partición libre
+        });
+        memory = [...occupiedBlocks]; // Actualizar la memoria sin los bloques libres
+    } else {
+        // Si la memoria no es dinámica, mover los procesos para ocupar el espacio libre sin eliminar particiones
+        let compactedMemory = [];
+        // Obtener el tipo de algoritmo de asignación desde el localStorage
+        const algorithmType = getAlgorithmTypeFromLocalStorage();
+        occupiedBlocks.forEach((processBlock, index) => {
+            let freeIndex = -1;
+            switch (algorithmType) {
+                case 'Primer ajuste': { // First Fit
+                    freeIndex = memory.findIndex(block => block.process === null && block.size >= processBlock.memory);
+                    break;
+                } 
+                case 'Mejor ajuste': { 
+                    let bestFitIndex = -1; // Best Fit
+                    let smallestSizeDiff = Infinity;
+                    memory.forEach((block, idx) => {
+                        if (block.process === null && block.size >= processBlock.memory) {
+                            const sizeDiff = block.size - processBlock.memory;
+                            if (sizeDiff < smallestSizeDiff) {
+                                smallestSizeDiff = sizeDiff;
+                                bestFitIndex = idx;
+                            }
+                        }
+                    });
+                    freeIndex = bestFitIndex;
+                    break; 
+                }
+                case 'Peor ajuste': { // Worst Fit
+                    let worstFitIndex = -1;
+                    let largestSizeDiff = -1;
+                    memory.forEach((block, idx) => {
+                        if (block.process === null && block.size >= processBlock.memory) {
+                            const sizeDiff = block.size - processBlock.memory;
+                            if (sizeDiff > largestSizeDiff) {
+                                largestSizeDiff = sizeDiff;
+                                worstFitIndex = idx;
+                            }
+                        }
+                    });
+                    freeIndex = worstFitIndex;
+                    break;
+                }
+                default: {
+                    console.error('Tipo de algoritmo no reconocido:', algorithmType);
+                    break;
+                }
             }
-            // Añadir el proceso al bloque compactado
-            compactedMemory.push({
-                ...processBlock,
-                size: processBlock.memory // Ajustar el tamaño al del proceso
-            });
-            remainingMemory.splice(indexToInsert, 1); // Remover el bloque libre utilizado
-        } else {
-            // Si no hay bloques adecuados, ubicar el proceso en su lugar original
-            compactedMemory.push(processBlock);
-        }
-    });
+            if (freeIndex !== -1 && freeIndex < index) {
+                // Si se encuentra un bloque libre adecuado y está antes del proceso actual, mover el proceso a esa posición
+                memory[freeIndex] = { ...processBlock, size: memory[freeIndex].size };
+                memory[index] = { process: null, size: processBlock.size }; // Dejar libre la posición original
+            } else {
+                // Mantener el proceso en su posición si no se encuentra una mejor opción
+                compactedMemory.push(processBlock);
+            }
+        });
+        // Añadir los bloques libres restantes al final
+        memory = [...compactedMemory, ...freeBlocks];
+    }
 
-    // Añadir los bloques libres restantes al final
-    compactedMemory = [...compactedMemory, ...remainingMemory];
-
-    // Guardar la memoria compactada en el localStorage
-    setMemoryForLocalStorage(compactedMemory);
+    // Guardar la memoria actualizada en el localStorage
+    setMemoryForLocalStorage(memory);
     console.log('Memoria compactada y procesos reubicados.');
 }
-
 // Eliminar proceso de la memoria
 export function removeProcess(processId) {
     memory = getMemoryFromLocalStorage();
@@ -182,6 +225,7 @@ export function removeProcess(processId) {
     memory = updatedMemory;
 }
 
+// ========================================================= Getters para los procesos desde el ID/
 // Obtener un proceso por su ID
 export function getProcessByIdFromMemory(processId) {
     const processMemory = getMemoryFromLocalStorage(); // Obtener la cola de procesos desde el localStorage
@@ -194,7 +238,6 @@ export function getProcessByIdFromMemory(processId) {
         return null; // Retornar null si el proceso no se encuentra
     }
 }
-
 // Obtener un proceso por su ID desde PROCESSES
 export function getProcessByIdFromPROCESSES(processId) {
     const process = Object.values(PROCESSES).find(process => process.id === processId);
@@ -207,6 +250,7 @@ export function getProcessByIdFromPROCESSES(processId) {
     }
 }
 
+// ==================================================================== Metodos de las Particiones/
 // Agregar una particion de memoria personalizada
 export function addPartition(size) {
     if (size <= 0) {
@@ -251,6 +295,7 @@ export function removePartition(index) {
     }
 }
 
+// ======================================================================== Calculos de la memoria/
 // Método para calcular el tamaño libre de un bloque
 export function calculateFreeSize(block) {
     // Si el bloque tiene un proceso, calcula el tamaño libre restando el tamaño del proceso
