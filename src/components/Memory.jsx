@@ -63,7 +63,7 @@ function Memory() {
       myChart.current = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: localMemory.map((block, index) => `${block.name ? `${block.name}` : `Bloque`} ${index}`),
+          labels: localMemory.map((block, index) => `${block.name ? `${block.name}` : `Bloque ${index}`}`),
           datasets: [
             {
               label: 'Memoria Usada',
