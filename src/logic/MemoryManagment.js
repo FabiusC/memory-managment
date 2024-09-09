@@ -346,3 +346,42 @@ export function calculateTotalWastedMemory() {
     }, 0); // Iniciar la suma desde cero
     return totalWastedMemory; // Retornar el total de memoria libre
 }
+// Método para obtener el indice Hexadecimal de cada bloque
+export function getMemoryIndex(blockIndex) {
+    const memory = getMemoryFromLocalStorage();
+    // Verifica si el índice es válido
+    if (blockIndex < 0 || blockIndex >= memory.length) {
+        console.log(`Invalid block index: ${blockIndex}`);
+        return {
+            startAddress: '0x0000',
+            endAddress: '0x0000'
+        };
+    }
+
+    let startAddress = 0;
+
+    // Iterar sobre los bloques hasta el índice deseado para calcular su posición
+    for (let i = 0; i <= blockIndex; i++) {
+        const block = memory[i];
+        const endAddress = startAddress + block.size - 1;
+
+        // Si es el bloque que estamos buscando, devolvemos sus direcciones
+        if (i === blockIndex) {
+            const startHex = `0x${startAddress.toString(16).toUpperCase()}`;
+            const endHex = `0x${endAddress.toString(16).toUpperCase()}`;
+            return {
+                startAddress: startHex,
+                endAddress: endHex
+            };
+        }
+
+        // Actualizar la dirección de inicio para el siguiente bloque
+        startAddress = endAddress + 1;
+    }
+
+    // Retornar direcciones vacías si no se encuentra el bloque, aunque este caso no debería ocurrir
+    return {
+        startAddress: '0x0000',
+        endAddress: '0x0000'
+    };
+}

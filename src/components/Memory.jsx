@@ -14,6 +14,7 @@ import {
   compactMemory,
   calculateTotalWastedMemory,
   initializeProcessQueue,
+  getMemoryIndex,
 } from '../logic/MemoryManagment';
 import {
   addProcessToProcessQueue,
@@ -63,7 +64,12 @@ function Memory() {
       myChart.current = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: localMemory.map((block, index) => `${block.name ? `${block.name}` : `Bloque ${index}`}`),
+          labels: localMemory.map((block, index) => {
+            // Obtén las posiciones de inicio y final del bloque en formato hexadecimal
+            const { startAddress, endAddress } = getMemoryIndex(index);
+            // Devuelve el nombre del bloque o el índice junto con la posición de memoria en hexadecimal
+            return `${block.name ? block.name : `${index}`} (${startAddress} - ${endAddress})`;
+          }),
           datasets: [
             {
               label: 'Memoria Usada',
