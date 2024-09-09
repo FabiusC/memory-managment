@@ -15,8 +15,9 @@ import { getMemoryTypeFromLocalStorage } from '../logic/LocalStorage/memoryContr
 import { resetLocalStorage } from '../logic/LocalStorage/localStorageUtils';
 
 // Imports for MemoryMangment functions
-import { addPartition, calculateTotalPartitionSize, findMemoryBlock } from '../logic/MemoryManagment';
-
+import { findMemoryBlock } from '../logic/MemoryManagment/memoryAlgorithms';
+import { addPartition } from '../logic/MemoryManagment/partitionManagment';
+import { calculateTotalPartitionSize } from '../logic/MemoryManagment/memoryCalculations';
 
 function ProcessList() {
 

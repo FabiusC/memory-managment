@@ -1,6 +1,6 @@
 // processList.js
+import { getProcessByIdFromPROCESSES } from '../MemoryManagment/getProcesses';
 import { emitProcessQueueChange } from './localStorageUtils';
-import { getProcessByIdFromPROCESSES } from '../MemoryManagment';
 
 // Getter & Setter for ProcessQueue
 export const getProcessQueueFromLocalStorage = () => {

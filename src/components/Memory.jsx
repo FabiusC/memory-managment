@@ -16,24 +16,12 @@ import {
 } from '../logic/LocalStorage/memoryControls';
 
 // Imports for MemoryMangment functions
-import {
-  initializeMemoryAndQueue,
-  getMemoryType,
-  setMemoryType,
-  getAlgorithmType,
-  setAlgorithmType,
-  getIsCompact,
-  setCompactMode,
-  removeProcess,
-  addPartition,
-  removePartition,
-  calculateTotalFreeMemory,
-  compactMemory,
-  calculateTotalWastedMemory,
-  initializeProcessQueue,
-  getMemoryIndex,
-} from '../logic/MemoryManagment';
-
+import { getAlgorithmType, getIsCompact, getMemoryType, initializeMemoryAndQueue, initializeProcessQueue, 
+  setAlgorithmType, setCompactMode, setMemoryType } from '../logic/MemoryManagment/initialiceMemory';
+import { removeProcess } from '../logic/MemoryManagment/memoryManipulation';
+import { addPartition, removePartition } from '../logic/MemoryManagment/partitionManagment';
+import { calculateTotalFreeMemory, calculateTotalWastedMemory, getMemoryIndex } from '../logic/MemoryManagment/memoryCalculations';
+import { compactMemory } from '../logic/MemoryManagment/memoryManipulation';
 
 function Memory() {
   const [localMemory, setLocalMemory] = useState([]);
