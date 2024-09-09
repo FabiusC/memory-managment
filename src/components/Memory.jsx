@@ -257,14 +257,14 @@ function Memory() {
         <div className="blocks-wrapper">
           {localMemory.map((block, index) => (
             <div key={index} className={`memory-block `}>
-              <span className={`memory-status ${(memoryType === 'Estática Personalizada' && 'custom-memory')} ${block.name ? 'memory-block-with-process' : ''}`}>
+              <span className={`memory-status ${((memoryType === 'Estática Personalizada' && block.id !== '0') && 'custom-memory')} ${block.name ? 'memory-block-with-process' : ''}`}>
                 {block.name ? (
                   <p>{block.name}, Tamaño: {block.memory} KB</p>
                 ) : (
                   <p>Libre: {block.size} KB</p>
                 )}
               </span>
-              {block.id && (
+              {( block.id && block.name !== 'SO' )&& (
                 <button className="remove-btn" onClick={() => handleRemoveProcess(block.id)}>
                   X
                 </button>

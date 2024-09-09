@@ -120,6 +120,10 @@ function ProcessList() {
       <ul className="processes-list">
         {Object.keys(processList).map((key) => {
           const process = processList[key];
+          // Condicional para no mostrar el proceso con id '0'
+          if (process.id === '0') {
+            return null; // No renderiza nada si el proceso es 'SO'
+          }
           return (
             <li key={process.id} className="process-card" onClick={() => handleAddProcessToMemory(process)}>
               <div className="process">

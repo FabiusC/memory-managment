@@ -1,5 +1,4 @@
-//CONSTANTS USED IN THE APPLICATION
-
+//CONSTANTES UTILIZADAS EN LA APLICACION
 export const PROCESSES = {
     0: {
         id: '0',
@@ -119,14 +118,51 @@ export const MEMORY_TYPES = [
 ];
 
 export const MEMORY_CONFIGURATIONS = {
-    'Estática (16x1MB)': Array(16).fill({ process: null, size: 1024 }), // 16 partitions of 1MB
-    'Estática (4,3, 2, 1, 0.5MB)': [
-        { process: null, size: 4096 },                   // 1 partition of 4MB
-        ...Array(2).fill({ process: null, size: 2048 }), // 2 partitions of 2MB
-        ...Array(4).fill({ process: null, size: 1024 }), // 4 partitions of 1MB
-        ...Array(6).fill({ process: null, size: 512  })  // 8 partitions of 0.5MB
+    'Estática (16x1MB)': [
+        { 
+            process: '0', 
+            id: '0',
+            name: 'SO',
+            memory: 1024,
+            image: 'https://svgl.app/library/windows.svg', 
+            size: 1024 
+        }, // Primera partición reservada para el proceso SO
+        ...Array(15).fill({ process: null, size: 1024 }) // Resto de las particiones
     ],
-
-    'Estática Personalizada': [], // Starts empty, partitions can be added dynamically
-    'Dinamica': [] // Starts empty, partitions can be added dynamically
+    'Estática (4,3, 2, 1, 0.5MB)': [
+        { 
+            process: '0', 
+            id: '0',
+            name: 'SO',
+            memory: 1024,
+            image: 'https://svgl.app/library/windows.svg', 
+            size: 1024 
+        }, // Primera partición reservada para el proceso SO
+        { process: null, size: 3072 },                   // Partición de 3MB
+        { process: null, size: 2048 },                   // Partición de 2MB
+        ...Array(2).fill({ process: null, size: 1024 }), // 2 Particiones de 1MB
+        ...Array(4).fill({ process: null, size: 512 })   // 4 Particiones de 0.5MB
+    ],
+    'Estática Personalizada': [
+        { 
+            process: '0', 
+            id: '0',
+            name: 'SO',
+            memory: 1024,
+            image: 'https://svgl.app/library/windows.svg', 
+            size: 1024 
+        }, // Primera partición reservada para el proceso SO
+        // Los usuarios pueden agregar más particiones dinámicamente
+    ],
+    'Dinamica': [
+        { 
+            process: '0', 
+            id: '0',
+            name: 'SO',
+            memory: 1024,
+            image: 'https://svgl.app/library/windows.svg', 
+            size: 1024 
+        }, // Primera partición reservada para el proceso SO
+        // Las particiones adicionales se gestionan dinámicamente
+    ]
 };
