@@ -1,4 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
+import { MEMORY_TYPES } from '../constants';
+import { Chart } from 'chart.js/auto'; // Import Chart.js with all dependencies
+
+// Imports for localStorage functions
+import {
+  addProcessToProcessQueue,
+} from '../logic/LocalStorage/processList';
+import {
+  getMemoryFromLocalStorage,
+} from '../logic/LocalStorage/memory';
+import {
+  getAlgorithmTypeFromLocalStorage,
+  getIsCompactFromLocalStorage,
+  getMemoryTypeFromLocalStorage,
+} from '../logic/LocalStorage/memoryControls';
+
+// Imports for MemoryMangment functions
 import {
   initializeMemoryAndQueue,
   getMemoryType,
@@ -16,15 +33,7 @@ import {
   initializeProcessQueue,
   getMemoryIndex,
 } from '../logic/MemoryManagment';
-import {
-  addProcessToProcessQueue,
-  getAlgorithmTypeFromLocalStorage,
-  getIsCompactFromLocalStorage,
-  getMemoryFromLocalStorage,
-  getMemoryTypeFromLocalStorage,
-} from '../logic/LocalStorage';
-import { MEMORY_TYPES } from '../constants';
-import { Chart } from 'chart.js/auto'; // Import Chart.js with all dependencies
+
 
 function Memory() {
   const [localMemory, setLocalMemory] = useState([]);

@@ -1,17 +1,22 @@
 import { useState, useEffect } from 'react';
+import { PROCESSES } from '../constants';
+import PropTypes from 'prop-types';
 
+// Imports for localStorage functions
 import {
   getProcessQueueFromLocalStorage,
   setProcessQueueForLocalStorage,
+} from '../logic/LocalStorage/processList';
+import {
   getMemoryFromLocalStorage,
   setMemoryForLocalStorage,
-  resetLocalStorage,
-  getMemoryTypeFromLocalStorage
-} from '../logic/LocalStorage';
-import { addPartition, calculateTotalPartitionSize, findMemoryBlock } from '../logic/MemoryManagment';
-import { PROCESSES } from '../constants';
+} from '../logic/LocalStorage/memory';
+import { getMemoryTypeFromLocalStorage } from '../logic/LocalStorage/memoryControls';
+import { resetLocalStorage } from '../logic/LocalStorage/localStorageUtils';
 
-import PropTypes from 'prop-types';
+// Imports for MemoryMangment functions
+import { addPartition, calculateTotalPartitionSize, findMemoryBlock } from '../logic/MemoryManagment';
+
 
 function ProcessList() {
 
