@@ -57,14 +57,12 @@ function Memory() {
   useEffect(() => {
     if (chartRef.current) {
       const ctx = chartRef.current.getContext('2d');
-
+  
       myChart.current = new Chart(ctx, {
         type: 'bar',
         data: {
           labels: localMemory.map((block, index) => {
-            // Obtén las posiciones de inicio y final del bloque en formato hexadecimal
             const { startAddress, endAddress } = getMemoryIndex(index);
-            // Devuelve el nombre del bloque o el índice junto con la posición de memoria en hexadecimal
             return `${block.name ? block.name : `${index}`} (${startAddress} - ${endAddress})`;
           }),
           datasets: [
@@ -88,6 +86,14 @@ function Memory() {
           indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
+          layout: {
+            padding: {
+              left: 0,
+              right: 0,
+              top: 10,
+              bottom: 10,
+            },
+          },
           plugins: {
             tooltip: {
               enabled: true,
@@ -125,7 +131,10 @@ function Memory() {
                 font: {
                   size: 15,
                 },
+                beginAtZero: true, // Asegura que las barras comiencen en cero
               },
+              min: 0,
+              suggestedMax: 50,
             },
             y: {
               stacked: true,
@@ -140,14 +149,13 @@ function Memory() {
         },
       });
     }
-
-    // Cleanup on unmount
     return () => {
       if (myChart.current) {
         myChart.current.destroy();
       }
     };
   }, [localMemory]);
+  
 
   // Function to update chart data
   const updateChart = () => {
