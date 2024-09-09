@@ -140,9 +140,10 @@ body {
   margin-top: 11%;
   margin-left: 20px;
   width: 17% !important;
-  height: 100%;
+  height: 80%;
   flex-direction: column;
-  align-items: center;
+  align-items: space;
+  justify-content: space-around;
 }
 
 .memory-block {
