@@ -112,8 +112,8 @@ export const PROCESSES = {
 
 export const MEMORY_TYPES = [
     'Estática (16x1MB)',
-    'Estática (4,3, 2, 1, 0.5MB)',
-    'Estática Personalizada',
+    'Estática Variable',
+    'Variable Personalizada',
     'Dinamica'
 ];
 
@@ -129,7 +129,7 @@ export const MEMORY_CONFIGURATIONS = {
         }, // Primera partición reservada para el proceso SO
         ...Array(15).fill({ process: null, size: 1024 }) // Resto de las particiones
     ],
-    'Estática (4,3, 2, 1, 0.5MB)': [
+    'Estática Variable': [
         { 
             process: '0', 
             id: '0',
@@ -143,7 +143,7 @@ export const MEMORY_CONFIGURATIONS = {
         ...Array(2).fill({ process: null, size: 1024 }), // 2 Particiones de 1MB
         ...Array(4).fill({ process: null, size: 512 })   // 4 Particiones de 0.5MB
     ],
-    'Estática Personalizada': [
+    'Variable Personalizada': [
         { 
             process: '0', 
             id: '0',
