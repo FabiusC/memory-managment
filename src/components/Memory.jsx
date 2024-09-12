@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { MEMORY_TYPES } from '../constants';
+import { MEMORY_TYPES } from '../data/constants';
 import { Chart } from 'chart.js/auto'; // Import Chart.js with all dependencies
 
 // Imports for localStorage functions

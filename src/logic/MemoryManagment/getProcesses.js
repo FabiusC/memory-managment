@@ -1,4 +1,4 @@
-import { PROCESSES } from "../../constants";
+import { PROCESSES } from "../../data/constants";
 import { getMemoryFromLocalStorage } from "../LocalStorage/memory";
 
 // Obtener un proceso por su ID
@@ -22,5 +22,17 @@ export function getProcessByIdFromPROCESSES(processId) {
     } else {
         console.error(`Proceso con ID ${processId} no encontrado.`);
         return null;
+    }
+}
+// Método para obtener un proceso según su índice en la memoria
+export function getProcessByIndex(index) {
+    const memory = getMemoryFromLocalStorage();
+    // Verificar que el índice esté dentro de los límites del array
+    if (index >= 0 && index < memory.length) {
+        console.log(`Proceso de ${index} en ${memory[index]}`);
+        return memory[index]; // Retorna el proceso correspondiente al índice
+    } else {
+        console.error(`Indice fuera de rango: ${index}`);
+        return null; // Retorna null si el índice está fuera de rango
     }
 }

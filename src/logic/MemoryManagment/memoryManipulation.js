@@ -1,6 +1,7 @@
-import { getMemoryFromLocalStorage, removeProcessFromMemory, setMemoryForLocalStorage } from "../LocalStorage/memory";
+import { getMemoryFromLocalStorage, setMemoryForLocalStorage } from "../LocalStorage/memory";
 import { getAlgorithmTypeFromLocalStorage, getMemoryTypeFromLocalStorage } from "../LocalStorage/memoryControls";
-import { removePartition } from "./partitionManagment";
+import { getProcessByIndex } from "./getProcesses";
+import { joinMemoryBlocks, removePartition } from "./partitionManagment";
 
 // Función de compactación
 export function compactMemory() {
@@ -32,8 +33,8 @@ export function compactMemory() {
                 case 'Primer ajuste': { // First Fit
                     freeIndex = memory.findIndex(block => block.process === null && block.size >= processBlock.memory);
                     break;
-                } 
-                case 'Mejor ajuste': { 
+                }
+                case 'Mejor ajuste': {
                     let bestFitIndex = -1; // Best Fit
                     let smallestSizeDiff = Infinity;
                     memory.forEach((block, idx) => {
@@ -46,7 +47,7 @@ export function compactMemory() {
                         }
                     });
                     freeIndex = bestFitIndex;
-                    break; 
+                    break;
                 }
                 case 'Peor ajuste': { // Worst Fit
                     let worstFitIndex = -1;
@@ -84,22 +85,46 @@ export function compactMemory() {
     // Guardar la memoria actualizada en el localStorage
     setMemoryForLocalStorage(memory);
 }
+
 // Eliminar proceso de la memoria
-export function removeProcess(processId) {
+export function removeProcess(index) {
+    // Obtener el proceso según el índice proporcionado
+    const processToRemove = getProcessByIndex(index);
+    console.log(`removing ${processToRemove.process}`);
+    if (!processToRemove) {
+        alert('Proceso no encontrado en la memoria.');
+        return;
+    }
+
+    // Obtener la memoria actual desde el localStorage
     let memory = getMemoryFromLocalStorage();
-    const updatedMemory = memory.map((block) => {
-        if (block.id === processId) {
-            return {
+
+    // Recorrer la memoria y eliminar el proceso en el índice especificado
+    for (let i = 0; i < memory.length; i++) {
+
+        if (i === index) {
+            console.log('Proceso eliminado:', memory[i]);
+            // Eliminar el proceso de la partición correspondiente
+            memory[i] = {
                 process: null,
                 id: null,
                 name: null,
                 memory: null,
                 image: null,
-                size: block.size,
+                size: memory[i].size,
             };
+            break; // Romper el ciclo una vez que se ha encontrado y eliminado el proceso
         }
-        return block;
-    });
-    removeProcessFromMemory(processId, updatedMemory);
-    memory = updatedMemory;
+    }
+
+    // Guardar la memoria actualizada sin el proceso
+    setMemoryForLocalStorage(memory);
+
+    // Llamar al método para unir bloques contiguos que estén libres si la memoria es dinámica
+    if (getMemoryTypeFromLocalStorage() === 'Dinamica') {
+        joinMemoryBlocks();
+    }
 }
+
+
+

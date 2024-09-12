@@ -152,7 +152,10 @@ export const MEMORY_CONFIGURATIONS = {
             image: 'https://svgl.app/library/windows.svg', 
             size: 1024 
         }, // Primera partición reservada para el proceso SO
-        // Los usuarios pueden agregar más particiones dinámicamente
+        {
+            process: null, 
+            size: 15360,
+        }// Los usuarios pueden agregar más particiones dinámicamente
     ],
     'Dinamica': [
         { 
@@ -163,6 +166,9 @@ export const MEMORY_CONFIGURATIONS = {
             image: 'https://svgl.app/library/windows.svg', 
             size: 1024 
         }, // Primera partición reservada para el proceso SO
-        // Las particiones adicionales se gestionan dinámicamente
+        {
+            process: null, 
+            size: 15360,
+        } // Las particiones adicionales se gestionan dinámicamente
     ]
 };

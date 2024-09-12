@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { PROCESSES } from '../constants';
+import { PROCESSES } from '../data/constants';
 import PropTypes from 'prop-types';
 
 // Imports for localStorage functions
@@ -16,8 +16,6 @@ import { resetLocalStorage } from '../logic/LocalStorage/localStorageUtils';
 
 // Imports for MemoryMangment functions
 import { findMemoryBlock } from '../logic/MemoryManagment/memoryAlgorithms';
-import { addPartition } from '../logic/MemoryManagment/partitionManagment';
-import { calculateTotalPartitionSize } from '../logic/MemoryManagment/memoryCalculations';
 
 function ProcessList() {
 
@@ -45,32 +43,39 @@ function ProcessList() {
     let currentMemory = getMemoryFromLocalStorage();
 
     // Verificar si la memoria es dinámica y hay suficiente espacio libre
-    if (getMemoryTypeFromLocalStorage() === 'Dinamica' && process.memory <= calculateTotalPartitionSize()) {
-      // Crear una nueva partición para el proceso
-      addPartition(process.memory);
-      // Obtener la memoria actualizada después de añadir la partición
-      currentMemory = getMemoryFromLocalStorage();
-      // Encontrar el índice de la partición recién creada (última en la lista)
-      const blockIndex = currentMemory.length - 1;
+    if (getMemoryTypeFromLocalStorage() === 'Dinamica') {
+      // Buscar la partición de memoria libre
+      const freeBlockIndex = currentMemory.findIndex(block => block.process === null);
 
-      // Validar si se puede agregar el proceso a la partición
-      if (process.memory <= currentMemory[blockIndex].size) {
-        currentMemory[blockIndex] = {
-          ...currentMemory[blockIndex],
+      // Verificar si hay una partición libre y si tiene suficiente espacio
+      if (freeBlockIndex !== -1 && process.memory <= currentMemory[freeBlockIndex].size) {
+        const freeBlock = currentMemory[freeBlockIndex];
+
+        // Crear una nueva partición para el proceso
+        const newPartition = {
           process: process.id,
           id: process.id,
           name: process.name,
           memory: process.memory,
           image: process.image,
+          size: process.memory,
         };
 
+        // Insertar la nueva partición antes de la partición libre
+        currentMemory.splice(freeBlockIndex, 0, newPartition);
+
+        // Reducir el tamaño de la partición libre restante
+        freeBlock.size -= process.memory;
+
+        // Si la partición libre se quedó sin espacio, eliminarla
+        if (freeBlock.size === 0) {
+          currentMemory.splice(freeBlockIndex + 1, 1);
+        }
+
+        // Guardar la memoria actualizada
         setMemoryForLocalStorage(currentMemory);
-        setProcessList((prevList) => {
-          const updatedList = { ...prevList };
-          delete updatedList[process.id];
-          setProcessQueueForLocalStorage(updatedList);
-          return updatedList;
-        });
+      } else {
+        alert('No hay suficiente espacio disponible en la memoria libre para este proceso.');
       }
     } else {
       // Si no hay suficiente memoria libre, buscar un bloque disponible
@@ -86,14 +91,7 @@ function ProcessList() {
           memory: process.memory,
           image: process.image,
         };
-
         setMemoryForLocalStorage(currentMemory);
-        setProcessList((prevList) => {
-          const updatedList = { ...prevList };
-          delete updatedList[process.id];
-          setProcessQueueForLocalStorage(updatedList);
-          return updatedList;
-        });
       } else {
         // Alertar si no hay espacio disponible en ningún bloque
         alert('No hay suficiente espacio disponible para este proceso.');
@@ -101,10 +99,10 @@ function ProcessList() {
     }
   };
 
+
   // Función para manejar el reinicio de localStorage
   const handleReset = () => {
     resetLocalStorage();
-    setProcessList(PROCESSES); // Actualiza el estado con los procesos iniciales
   };
 
   return (

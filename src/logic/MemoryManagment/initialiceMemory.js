@@ -1,5 +1,5 @@
 // initializeMemory.js
-import { MEMORY_CONFIGURATIONS, PROCESSES } from "../../constants";
+import { MEMORY_CONFIGURATIONS, PROCESSES } from "../../data/constants";
 import { getMemoryFromLocalStorage, setMemoryForLocalStorage } from "../LocalStorage/memory";
 import { setAlgorithmTypeForLocalStorage, setIsCompactForLocalStorage, setMemoryTypeForLocalStorage } from "../LocalStorage/memoryControls";
 import { getProcessQueueFromLocalStorage, setProcessQueueForLocalStorage } from "../LocalStorage/processList";
