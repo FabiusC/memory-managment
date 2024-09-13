@@ -106,8 +106,13 @@ export function removeProcess(index) {
             memory[i] = {
                 process: null,
                 id: null,
-                name: 'deleted',
+                name: 'Libre',
                 memory: null,
+                text: null,
+                data: null,
+                bss: null,
+                heap: null,
+                stack: null,
                 image: null,
                 size: memory[i].size,
             };
@@ -142,7 +147,7 @@ export function deleteAllProcesses() {
             };
         }
     }
-    
+
     // Guardar la memoria actualizada
     setMemoryForLocalStorage(memory);
 
@@ -157,15 +162,20 @@ export const addProcessToMemory = (process, blockIndex) => {
     let currentMemory = getMemoryFromLocalStorage();
     // Asignar el proceso a la partición encontrada
     currentMemory[blockIndex] = {
-      ...currentMemory[blockIndex],
-      process: process.id,
-      id: process.id,
-      name: process.name,
-      memory: process.memory,
-      image: process.image,
+        ...currentMemory[blockIndex],
+        process: process.id,
+        id: process.id,
+        name: process.name,
+        memory: process.memory,
+        text: process.text,
+        data: process.data,
+        bss: process.bss,
+        heap: process.heap,
+        stack: process.stack,
+        image: process.image,
     };
     // Guardar la memoria actualizada
     setMemoryForLocalStorage(currentMemory);
-  };
+};
 
 

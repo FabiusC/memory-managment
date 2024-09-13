@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { MEMORY_TYPES } from '../data/constants';
-import { Chart } from 'chart.js/auto'; // Import Chart.js with all dependencies
+import { Chart } from 'chart.js/auto'; // Import Chart.js con todas sus dependencias
+import MemoryBlockModal from './MemoryBlockModal';
 
 // Imports for localStorage functions
 import {
@@ -29,6 +30,10 @@ function Memory() {
   const [algorithmType, setLocalAlgorithmType] = useState(getAlgorithmType());
   // eslint-disable-next-line no-unused-vars
   const [isCompact, setLocalIsCompact] = useState(getIsCompact());
+  // eslint-disable-next-line no-unused-vars
+  const [selectedBlock, setSelectedBlock] = useState(null); // Estado para el bloque seleccionado
+  // eslint-disable-next-line no-unused-vars
+  const [showModal, setShowModal] = useState(false);
   const [partitionSize, setPartitionSize] = useState('');
 
   // Reference for the chart canvas
@@ -255,6 +260,11 @@ function Memory() {
     }
   };
 
+  const handleBlockClick = (block) => {
+    setSelectedBlock(block);
+    setShowModal(true);
+  };
+
   return (
     <section className="memory-container">
       <header className="memory-header">
@@ -295,11 +305,15 @@ function Memory() {
         <canvas ref={chartRef} className="chart" style={{ width: '100%', height: '400px' }}></canvas>
         <div className="blocks-wrapper">
           {localMemory.map((block, index) => (
-            <div key={index} className={`memory-block`}>
+            <div
+              key={index}
+              className={`memory-block`}
+              onClick={() => handleBlockClick(block)}
+            >
               <span
                 className={`memory-status ${((memoryType === 'Variable Personalizada' && block.id !== '0') && 'custom-memory')} 
-              ${block.process ? 'memory-block-with-process' : ''}
-              ${(block.name === 'deleted') ? 'memory-status' : ''}`}
+                          ${block.process ? 'memory-block-with-process' : ''}
+                          ${(block.name === 'libre') ? 'memory-status' : ''}`}
               >
                 {block.process === null ? (
                   <p>Libre: {block.size} KB</p>
@@ -308,12 +322,24 @@ function Memory() {
                 )}
               </span>
               {(block.id && block.name !== 'SO') && (
-                <button className="remove-btn" onClick={() => handleRemoveProcess(index)}>
+                <button
+                  className="remove-btn"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Evitar que el clic en el botón cierre el modal
+                    handleRemoveProcess(index);
+                  }}
+                >
                   X
                 </button>
               )}
               {(((memoryType === 'Variable Personalizada' || memoryType === 'Dinamica') && block.name === 'deleted') && !block.id) && (
-                <button className="remove-partition-btn" onClick={() => handleRemovePartition(index)}>
+                <button
+                  className="remove-partition-btn"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Evitar que el clic en el botón cierre el modal
+                    handleRemovePartition(index);
+                  }}
+                >
                   Eliminar Particion
                 </button>
               )}
@@ -321,7 +347,11 @@ function Memory() {
           ))}
         </div>
       </div>
-
+      <MemoryBlockModal
+        show={showModal}
+        block={selectedBlock}
+        onClose={() => setShowModal(false)}
+      />
       {memoryType === 'Variable Personalizada' && (
         <div className="custom-partition-creator">
           <input
