@@ -1,3 +1,5 @@
+// ProcessList.jsx
+
 import { useState, useEffect } from 'react';
 import { PROCESSES } from '../data/constants';
 import PropTypes from 'prop-types';
@@ -9,16 +11,17 @@ import {
 } from '../logic/LocalStorage/processList';
 import {
   getMemoryFromLocalStorage,
-  setMemoryForLocalStorage,
 } from '../logic/LocalStorage/memory';
 import { getMemoryTypeFromLocalStorage } from '../logic/LocalStorage/memoryControls';
 import { resetLocalStorage } from '../logic/LocalStorage/localStorageUtils';
 
-// Imports for MemoryMangment functions
+// Imports for MemoryManagement functions
 import { findMemoryBlock } from '../logic/MemoryManagment/memoryAlgorithms';
+import { calculateTotalFreeMemory } from '../logic/MemoryManagment/memoryCalculations';
+import { addPartition } from '../logic/MemoryManagment/partitionManagment';
+import { addProcessToMemory, deleteAllProcesses } from '../logic/MemoryManagment/memoryManipulation'; // Importar el nuevo método
 
 function ProcessList() {
-
   const [processList, setProcessList] = useState({});
 
   useEffect(() => {
@@ -42,58 +45,51 @@ function ProcessList() {
   const handleAddProcessToMemory = (process) => {
     let currentMemory = getMemoryFromLocalStorage();
 
-    // Verificar si la memoria es dinámica y hay suficiente espacio libre
     if (getMemoryTypeFromLocalStorage() === 'Dinamica') {
-      // Buscar la partición de memoria libre
-      const freeBlockIndex = currentMemory.findIndex(block => block.process === null);
+      const totalFreeMemory = calculateTotalFreeMemory();
+      // Intentar encontrar una partición usando el método firstFit
+      const blockIndex = findMemoryBlock(process, currentMemory);
+      // Si se encuentra una partición adecuada
+      if (blockIndex !== -1 && blockIndex < currentMemory.length - 1) {
+        console.log(`Añadiendo proceso ${process.name} a una particion existente en el índice ${blockIndex}`);
+        addProcessToMemory(process, blockIndex);
+      }
 
-      // Verificar si hay una partición libre y si tiene suficiente espacio
-      if (freeBlockIndex !== -1 && process.memory <= currentMemory[freeBlockIndex].size) {
-        const freeBlock = currentMemory[freeBlockIndex];
+      // Si el índice es igual a la longitud de la memoria, se procede a crear una nueva partición
+      if (blockIndex !== -1 && blockIndex === currentMemory.length - 1) {
+        console.log(`Creando nueva partición para el proceso ${process.name}`);
+        // Verificar si hay suficiente espacio para crear una nueva partición
+        const freeBlockIndex = currentMemory.findIndex((block) => block.process === null);
 
-        // Crear una nueva partición para el proceso
-        const newPartition = {
-          process: process.id,
-          id: process.id,
-          name: process.name,
-          memory: process.memory,
-          image: process.image,
-          size: process.memory,
-        };
+        if (freeBlockIndex !== -1 && process.memory <= totalFreeMemory) {
+          // Crear una nueva partición para el proceso
+          addPartition(process.memory);
 
-        // Insertar la nueva partición antes de la partición libre
-        currentMemory.splice(freeBlockIndex, 0, newPartition);
+          // Obtener la memoria actualizada después de añadir la partición
+          currentMemory = getMemoryFromLocalStorage();
 
-        // Reducir el tamaño de la partición libre restante
-        freeBlock.size -= process.memory;
+          // Encontrar la nueva partición creada
+          const newPartitionIndex = currentMemory.findIndex(
+            (block) => block.size === process.memory && block.process === null
+          );
 
-        // Si la partición libre se quedó sin espacio, eliminarla
-        if (freeBlock.size === 0) {
-          currentMemory.splice(freeBlockIndex + 1, 1);
+          // Asignar el proceso a la nueva partición
+          if (newPartitionIndex !== -1) {
+            addProcessToMemory(process, newPartitionIndex);
+          } else {
+            alert('Error al crear la nueva partición para el proceso.');
+          }
+        } else {
+          alert('No hay suficiente espacio disponible en la memoria libre para este proceso.');
         }
-
-        // Guardar la memoria actualizada
-        setMemoryForLocalStorage(currentMemory);
-      } else {
-        alert('No hay suficiente espacio disponible en la memoria libre para este proceso.');
       }
     } else {
-      // Si no hay suficiente memoria libre, buscar un bloque disponible
+      // Memoria no dinámica: intentar encontrar un bloque adecuado
       const blockIndex = findMemoryBlock(process, currentMemory);
 
       if (blockIndex !== -1 && process.memory <= currentMemory[blockIndex].size) {
-        // Agregar el proceso al bloque encontrado
-        currentMemory[blockIndex] = {
-          ...currentMemory[blockIndex],
-          process: process.id,
-          id: process.id,
-          name: process.name,
-          memory: process.memory,
-          image: process.image,
-        };
-        setMemoryForLocalStorage(currentMemory);
+        addProcessToMemory(process, blockIndex);
       } else {
-        // Alertar si no hay espacio disponible en ningún bloque
         alert('No hay suficiente espacio disponible para este proceso.');
       }
     }
@@ -105,6 +101,11 @@ function ProcessList() {
     resetLocalStorage();
   };
 
+  // Función para eliminar todos los procesos de la memoria
+  const handleDeleteAllProcesses = () => {
+    deleteAllProcesses();
+  };
+
   return (
     <section className="process-list-container">
       <header className="header">
@@ -112,15 +113,15 @@ function ProcessList() {
           <h1>Procesos</h1>
         </div>
         <div className="controls-container">
-          <button className="btn-reset" onClick={handleReset}>Reiniciar</button> {/* Botón para reiniciar */}
+          <button className="btn-reset" onClick={handleReset}>Reiniciar</button>
+          <button className="btn-reset" onClick={handleDeleteAllProcesses}>Limpiar Procesos</button>
         </div>
       </header>
       <ul className="processes-list">
         {Object.keys(processList).map((key) => {
           const process = processList[key];
-          // Condicional para no mostrar el proceso con id '0'
           if (process.id === '0') {
-            return null; // No renderiza nada si el proceso es 'SO'
+            return null;
           }
           return (
             <li key={process.id} className="process-card" onClick={() => handleAddProcessToMemory(process)}>
@@ -150,7 +151,7 @@ ProcessList.propTypes = {
     })
   ).isRequired,
   addProcessToMemory: PropTypes.func.isRequired,
-  onReset: PropTypes.func.isRequired, // Añade la validación del nuevo prop onReset
+  onReset: PropTypes.func.isRequired,
 };
 
 export default ProcessList;

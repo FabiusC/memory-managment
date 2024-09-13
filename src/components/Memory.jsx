@@ -71,7 +71,7 @@ function Memory() {
           stack: `memoryStack`,
           tooltipInfo: `Proceso: ${block.name}\nMemoria Usada: ${block.memory || 0} KB\nDirección: ${startAddress} - ${endAddress}`,
         };
-        
+
         // Dataset para la memoria libre
         const freeDataset = {
           label: `Memoria Libre (${startAddress} - ${endAddress})`,
@@ -292,15 +292,19 @@ function Memory() {
         </div>
       </header>
       <div className="memory-visualization-container">
-        <canvas ref={chartRef} className='chart' style={{ width: '100%', height: '400px' }}></canvas>
+        <canvas ref={chartRef} className="chart" style={{ width: '100%', height: '400px' }}></canvas>
         <div className="blocks-wrapper">
           {localMemory.map((block, index) => (
-            <div key={index} className={`memory-block `}>
-              <span className={`memory-status ${((memoryType === 'Estática Personalizada' && block.id !== '0') && 'custom-memory')} ${block.name ? 'memory-block-with-process' : ''}`}>
-                {block.name ? (
-                  <p>{block.name}, Tamaño: {block.memory} KB</p>
-                ) : (
+            <div key={index} className={`memory-block`}>
+              <span
+                className={`memory-status ${((memoryType === 'Variable Personalizada' && block.id !== '0') && 'custom-memory')} 
+              ${block.process ? 'memory-block-with-process' : ''}
+              ${(block.name === 'deleted') ? 'memory-status' : ''}`}
+              >
+                {block.process === null ? (
                   <p>Libre: {block.size} KB</p>
+                ) : (
+                  <p>{`${block.name}, Tamaño: ${block.memory} KB`}</p>
                 )}
               </span>
               {(block.id && block.name !== 'SO') && (
@@ -308,7 +312,7 @@ function Memory() {
                   X
                 </button>
               )}
-              {((memoryType === 'Estática Personalizada' || memoryType === 'Dinamica') && !block.id) && (
+              {(((memoryType === 'Variable Personalizada' || memoryType === 'Dinamica') && block.name === 'deleted') && !block.id) && (
                 <button className="remove-partition-btn" onClick={() => handleRemovePartition(index)}>
                   Eliminar Particion
                 </button>
@@ -317,7 +321,8 @@ function Memory() {
           ))}
         </div>
       </div>
-      {memoryType === 'Estática Personalizada' && (
+
+      {memoryType === 'Variable Personalizada' && (
         <div className="custom-partition-creator">
           <input
             type="number"

@@ -106,7 +106,7 @@ export function removeProcess(index) {
             memory[i] = {
                 process: null,
                 id: null,
-                name: null,
+                name: 'deleted',
                 memory: null,
                 image: null,
                 size: memory[i].size,
@@ -124,5 +124,48 @@ export function removeProcess(index) {
     }
 }
 
+// Eliminar todos los procesos de la memoria
+export function deleteAllProcesses() {
+    // Obtener la memoria actual desde el localStorage
+    let memory = getMemoryFromLocalStorage();
+
+    // Recorrer la memoria y eliminar todos los procesos
+    for (let i = 0; i < memory.length; i++) {
+        if (memory[i].process !== null && memory[i].id !== '0') { // Evitar eliminar el proceso SO
+            memory[i] = {
+                process: null,
+                id: null,
+                name: null,
+                memory: null,
+                image: null,
+                size: memory[i].size,
+            };
+        }
+    }
+    
+    // Guardar la memoria actualizada
+    setMemoryForLocalStorage(memory);
+
+    // Unir bloques contiguos si la memoria es Dinámica
+    if (getMemoryTypeFromLocalStorage() === 'Dinamica') {
+        joinMemoryBlocks();
+    }
+}
+
+// Añadir proceso a la memoria
+export const addProcessToMemory = (process, blockIndex) => {
+    let currentMemory = getMemoryFromLocalStorage();
+    // Asignar el proceso a la partición encontrada
+    currentMemory[blockIndex] = {
+      ...currentMemory[blockIndex],
+      process: process.id,
+      id: process.id,
+      name: process.name,
+      memory: process.memory,
+      image: process.image,
+    };
+    // Guardar la memoria actualizada
+    setMemoryForLocalStorage(currentMemory);
+  };
 
 
