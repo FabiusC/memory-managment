@@ -253,7 +253,8 @@ function Memory() {
   };
 
   const handleRemovePartition = (index) => {
-    if (memoryType === 'Estática Personalizada' || memoryType === 'Dinamica') {
+    if (memoryType === 'Estática Personalizada') {
+      console.log(`Removering partition at index ${index}`);
       removePartition(index);
       const updatedMemory = getMemoryFromLocalStorage();
       setLocalMemory(Array.isArray(updatedMemory) ? updatedMemory : []);
@@ -301,19 +302,17 @@ function Memory() {
           )}
         </div>
       </header>
-      <div className="memory-visualization-container">
-        <canvas ref={chartRef} className="chart" style={{ width: '100%', height: '400px' }}></canvas>
+      <div className={`memory-visualization-container ${(memoryType === 'Variable Personalizada') ? 'memory-visualization-container-height' : ''}`}>
+        <canvas ref={chartRef} className="chart"></canvas>
         <div className="blocks-wrapper">
           {localMemory.map((block, index) => (
             <div
               key={index}
               className={`memory-block`}
-              onClick={() => handleBlockClick(block)}
+              onClick={() => handleBlockClick(block)} // Abre el modal al hacer clic en el bloque
             >
               <span
-                className={`memory-status ${((memoryType === 'Variable Personalizada' && block.id !== '0') && 'custom-memory')} 
-                          ${block.process ? 'memory-block-with-process' : ''}
-                          ${(block.name === 'libre') ? 'memory-status' : ''}`}
+                className={`memory-status ${block.process ? 'memory-block-with-process' : ''}`}
               >
                 {block.process === null ? (
                   <p>Libre: {block.size} KB</p>
@@ -325,33 +324,33 @@ function Memory() {
                 <button
                   className="remove-btn"
                   onClick={(e) => {
-                    e.stopPropagation(); // Evitar que el clic en el botón cierre el modal
+                    e.stopPropagation(); // Prevenir que el clic abra el modal
                     handleRemoveProcess(index);
                   }}
                 >
                   X
                 </button>
               )}
-              {(((memoryType === 'Variable Personalizada' || memoryType === 'Dinamica') && block.name === 'deleted') && !block.id) && (
+              {(((memoryType === 'Variable Personalizada' || memoryType === 'Dinamica') && block.name === 'Libre') && !block.id) && (
                 <button
                   className="remove-partition-btn"
                   onClick={(e) => {
-                    e.stopPropagation(); // Evitar que el clic en el botón cierre el modal
+                    e.stopPropagation();
                     handleRemovePartition(index);
                   }}
                 >
-                  Eliminar Particion
+                  X Particion
                 </button>
               )}
             </div>
           ))}
+          <MemoryBlockModal
+            show={showModal}
+            block={selectedBlock}
+            onClose={() => setShowModal(false)}
+          />
         </div>
       </div>
-      <MemoryBlockModal
-        show={showModal}
-        block={selectedBlock}
-        onClose={() => setShowModal(false)}
-      />
       {memoryType === 'Variable Personalizada' && (
         <div className="custom-partition-creator">
           <input

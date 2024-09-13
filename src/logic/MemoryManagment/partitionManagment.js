@@ -19,6 +19,7 @@ export function addPartition(size) {
         const newPartition = {
             size: size,
             process: null,
+            name: 'Libre',
         };
 
         // Insertar la nueva partición antes de la partición libre

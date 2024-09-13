@@ -51,7 +51,6 @@ function ProcessList() {
       const blockIndex = findMemoryBlock(process, currentMemory);
       // Si se encuentra una partición adecuada
       if (blockIndex !== -1 && blockIndex < currentMemory.length - 1) {
-        console.log(`Añadiendo proceso ${process.name} a una particion existente en el índice ${blockIndex}`);
         addProcessToMemory(process, blockIndex);
       }
 
@@ -63,7 +62,6 @@ function ProcessList() {
         if (freeBlockIndex !== -1 && process.memory <= totalFreeMemory) {
           // Crear una nueva partición para el proceso
           addPartition(process.memory);
-          console.log(`Creando nueva partición para el proceso ${process.name}`);
 
           // Obtener la memoria actualizada después de añadir la partición
           currentMemory = getMemoryFromLocalStorage();
