@@ -90,7 +90,6 @@ export function compactMemory() {
 export function removeProcess(index) {
     // Obtener el proceso según el índice proporcionado
     const processToRemove = getProcessByIndex(index);
-    console.log(`removing ${processToRemove.process}`);
     if (!processToRemove) {
         alert('Proceso no encontrado en la memoria.');
         return;
@@ -103,7 +102,6 @@ export function removeProcess(index) {
     for (let i = 0; i < memory.length; i++) {
 
         if (i === index) {
-            console.log('Proceso eliminado:', memory[i]);
             // Eliminar el proceso de la partición correspondiente
             memory[i] = {
                 process: null,

@@ -4,9 +4,6 @@ import { Chart } from 'chart.js/auto'; // Import Chart.js with all dependencies
 
 // Imports for localStorage functions
 import {
-  addProcessToProcessQueue,
-} from '../logic/LocalStorage/processList';
-import {
   getMemoryFromLocalStorage,
 } from '../logic/LocalStorage/memory';
 import {
@@ -232,9 +229,8 @@ function Memory() {
     setLocalIsCompact(getIsCompactFromLocalStorage());
   };
 
-  const handleRemoveProcess = (processId) => {
-    addProcessToProcessQueue(processId);
-    removeProcess(processId);
+  const handleRemoveProcess = (index) => {
+    removeProcess(index);
     if (getIsCompactFromLocalStorage()) {
       compactMemory();
     }
@@ -308,7 +304,7 @@ function Memory() {
                 )}
               </span>
               {(block.id && block.name !== 'SO') && (
-                <button className="remove-btn" onClick={() => handleRemoveProcess(block.id)}>
+                <button className="remove-btn" onClick={() => handleRemoveProcess(index)}>
                   X
                 </button>
               )}
