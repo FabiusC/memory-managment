@@ -1,5 +1,5 @@
 // localStorageUtils.js
-import { PROCESSES } from '../../constants';
+import { PROCESSES } from '../../data/constants';
 import { setMemoryType } from '../MemoryManagment/initialiceMemory';
 import { setProcessQueueForLocalStorage } from './processList';
 

@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { MEMORY_TYPES } from '../constants';
-import { Chart } from 'chart.js/auto'; // Import Chart.js with all dependencies
+import { MEMORY_TYPES } from '../data/constants';
+import { Chart } from 'chart.js/auto'; // Import Chart.js con todas sus dependencias
+import MemoryBlockModal from './MemoryBlockModal';
 
 // Imports for localStorage functions
-import {
-  addProcessToProcessQueue,
-} from '../logic/LocalStorage/processList';
 import {
   getMemoryFromLocalStorage,
 } from '../logic/LocalStorage/memory';
@@ -16,8 +14,10 @@ import {
 } from '../logic/LocalStorage/memoryControls';
 
 // Imports for MemoryMangment functions
-import { getAlgorithmType, getIsCompact, getMemoryType, initializeMemoryAndQueue, initializeProcessQueue, 
-  setAlgorithmType, setCompactMode, setMemoryType } from '../logic/MemoryManagment/initialiceMemory';
+import {
+  getAlgorithmType, getIsCompact, getMemoryType, initializeMemoryAndQueue, initializeProcessQueue,
+  setAlgorithmType, setCompactMode, setMemoryType
+} from '../logic/MemoryManagment/initialiceMemory';
 import { removeProcess } from '../logic/MemoryManagment/memoryManipulation';
 import { addPartition, removePartition } from '../logic/MemoryManagment/partitionManagment';
 import { calculateTotalFreeMemory, calculateTotalWastedMemory, getMemoryIndex } from '../logic/MemoryManagment/memoryCalculations';
@@ -30,6 +30,10 @@ function Memory() {
   const [algorithmType, setLocalAlgorithmType] = useState(getAlgorithmType());
   // eslint-disable-next-line no-unused-vars
   const [isCompact, setLocalIsCompact] = useState(getIsCompact());
+  // eslint-disable-next-line no-unused-vars
+  const [selectedBlock, setSelectedBlock] = useState(null); // Estado para el bloque seleccionado
+  // eslint-disable-next-line no-unused-vars
+  const [showModal, setShowModal] = useState(false);
   const [partitionSize, setPartitionSize] = useState('');
 
   // Reference for the chart canvas
@@ -57,39 +61,51 @@ function Memory() {
   useEffect(() => {
     if (chartRef.current) {
       const ctx = chartRef.current.getContext('2d');
-  
+
+      // Crear datasets para cada bloque de memoria, dividiendo entre memoria usada y libre
+      const datasets = localMemory.flatMap((block, index) => {
+        const { startAddress, endAddress } = getMemoryIndex(index);
+
+        // Dataset para la memoria usada (solo si hay un proceso)
+        const usedDataset = {
+          label: `Memoria Usada (${startAddress} - ${endAddress})`,
+          data: [block.memory || 0], // Memoria usada por el proceso
+          backgroundColor: '#ff4444', // Rojo para la memoria usada
+          borderColor: '#000000',
+          borderWidth: 2,
+          stack: `memoryStack`,
+          tooltipInfo: `Proceso: ${block.name}\nMemoria Usada: ${block.memory || 0} KB\nDirección: ${startAddress} - ${endAddress}`,
+        };
+
+        // Dataset para la memoria libre
+        const freeDataset = {
+          label: `Memoria Libre (${startAddress} - ${endAddress})`,
+          data: [block.size - (block.memory || 0)], // Espacio libre en la partición
+          backgroundColor: '#4FC3F7', // Azul para la memoria libre
+          borderColor: '#000000',
+          borderWidth: 2,
+          stack: `memoryStack`,
+          tooltipInfo: `Memoria Libre: ${block.size - (block.memory || 0)} KB\nDirección: ${startAddress} - ${endAddress}`,
+        };
+
+        // Retorna ambos datasets (usado y libre) para cada bloque
+        return [usedDataset, freeDataset];
+      });
+
       myChart.current = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: localMemory.map((block, index) => {
-            const { startAddress, endAddress } = getMemoryIndex(index);
-            return `${block.name ? block.name : `${index}`} (${startAddress} - ${endAddress})`;
-          }),
-          datasets: [
-            {
-              label: 'Memoria Usada',
-              data: localMemory.map((block) => block.memory || 0),
-              backgroundColor: '#88ffc3',
-              hoverBackgroundColor: '#56db78',
-              barThickness: 30,
-            },
-            {
-              label: 'Memoria Libre',
-              data: localMemory.map((block) => block.size - (block.memory || 0)),
-              backgroundColor: '#88e7ff',
-              hoverBackgroundColor: '#4ed3f5',
-              barThickness: 30,
-            },
-          ],
+          labels: ['Memoria'], // Solo una etiqueta para toda la barra
+          datasets: datasets, // Todos los bloques se muestran apilados
         },
         options: {
-          indexAxis: 'y',
+          indexAxis: 'x', // Mantiene la orientación vertical
           responsive: true,
           maintainAspectRatio: false,
           layout: {
             padding: {
-              left: 0,
-              right: 0,
+              left: 10,
+              right: 10,
               top: 10,
               bottom: 10,
             },
@@ -104,21 +120,48 @@ function Memory() {
               bodyFont: {
                 size: 16,
               },
-            },
-            title: {
-              display: true,
-              text: 'Bloques de Memoria',
-              font: {
-                size: 40,
-                weight: 'bold',
-                color: '#ffffff',
+              callbacks: {
+                // Personaliza el contenido del tooltip
+                label: function (tooltipItem) {
+                  const dataset = tooltipItem.dataset; // Obtiene el dataset actual
+                  // Muestra la información personalizada definida en tooltipInfo
+                  return dataset.tooltipInfo || tooltipItem.label;
+                },
               },
             },
             legend: {
+              position: 'right',
+              align: 'space-around',
               labels: {
+                boxWidth: 20,
+                padding: 20,
+                usePointStyle: true,
                 color: '#e0e0e0',
                 font: {
-                  size: 25,
+                  size: 12,
+                },
+                filter: function (item) {
+                  // Filtrar para mostrar solo las direcciones de memoria
+                  return !item.text.includes('Memoria Usada') && !item.text.includes('Memoria Libre');
+                },
+                generateLabels: function (chart) {
+                  // Filtra y muestra solo las direcciones únicas
+                  const uniqueLabels = [];
+                  chart.data.datasets.forEach(dataset => {
+                    if (!uniqueLabels.includes(dataset.label)) {
+                      uniqueLabels.push(dataset.label);
+                    }
+                  });
+                  return uniqueLabels.map(label => ({
+                    text: label, // Mostrar solo las direcciones de memoria
+                    fillStyle: '#4FC3F7',
+                    hidden: false,
+                    lineCap: 'butt',
+                    lineDash: [],
+                    lineDashOffset: 0,
+                    lineJoin: 'miter',
+                    pointStyle: 'circle',
+                  }));
                 },
               },
             },
@@ -129,33 +172,35 @@ function Memory() {
               ticks: {
                 color: '#e0e0e0',
                 font: {
-                  size: 15,
+                  size: 12,
                 },
-                beginAtZero: true, // Asegura que las barras comiencen en cero
+                beginAtZero: true,
+                callback: (value) => `${value} KB`,
               },
-              min: 0,
-              suggestedMax: 50,
+              grid: {
+                display: true,
+                color: '#444',
+              },
+              barPercentage: 0.9,
+              categoryPercentage: 0.8,
             },
             y: {
               stacked: true,
-              ticks: {
-                color: '#e0e0e0',
-                font: {
-                  size: 15,
-                },
-              },
+              ticks: { display: false },
+              grid: { display: true },
             },
           },
         },
       });
     }
+
+    // Cleanup on unmount
     return () => {
       if (myChart.current) {
         myChart.current.destroy();
       }
     };
   }, [localMemory]);
-  
 
   // Function to update chart data
   const updateChart = () => {
@@ -187,11 +232,14 @@ function Memory() {
     setLocalIsCompact(compact);
     setCompactMode(compact);
     setLocalIsCompact(getIsCompactFromLocalStorage());
+    if (getIsCompactFromLocalStorage()) {
+      compactMemory();
+    }
+    compactMemory();
   };
 
-  const handleRemoveProcess = (processId) => {
-    addProcessToProcessQueue(processId);
-    removeProcess(processId);
+  const handleRemoveProcess = (index) => {
+    removeProcess(index);
     if (getIsCompactFromLocalStorage()) {
       compactMemory();
     }
@@ -209,11 +257,16 @@ function Memory() {
   };
 
   const handleRemovePartition = (index) => {
-    if (memoryType === 'Estática Personalizada' || memoryType === 'Dinamica') {
+    if (getMemoryTypeFromLocalStorage() === 'Variable Personalizada') {
       removePartition(index);
       const updatedMemory = getMemoryFromLocalStorage();
       setLocalMemory(Array.isArray(updatedMemory) ? updatedMemory : []);
     }
+  };
+
+  const handleBlockClick = (block) => {
+    setSelectedBlock(block);
+    setShowModal(true);
   };
 
   return (
@@ -252,33 +305,56 @@ function Memory() {
           )}
         </div>
       </header>
-      <div className="memory-visualization-container">
-        <canvas ref={chartRef} className='chart' style={{ width: '100%', height: '400px' }}></canvas>
+      <div className={`memory-visualization-container ${(memoryType === 'Variable Personalizada') ? 'memory-visualization-container-height' : ''}`}>
+        <canvas ref={chartRef} className="chart"></canvas>
         <div className="blocks-wrapper">
           {localMemory.map((block, index) => (
-            <div key={index} className={`memory-block `}>
-              <span className={`memory-status ${((memoryType === 'Estática Personalizada' && block.id !== '0') && 'custom-memory')} ${block.name ? 'memory-block-with-process' : ''}`}>
-                {block.name ? (
-                  <p>{block.name}, Tamaño: {block.memory} KB</p>
-                ) : (
+            <div
+              key={index}
+              className={`memory-block`}
+              onClick={() => handleBlockClick(block)} // Abre el modal al hacer clic en el bloque
+            >
+              <span
+                className={`memory-status ${block.process ? 'memory-block-with-process' : ''}`}
+              >
+                {block.process === null ? (
                   <p>Libre: {block.size} KB</p>
+                ) : (
+                  <p>{`${block.name}, Tamaño: ${block.memory} KB`}</p>
                 )}
               </span>
-              {( block.id && block.name !== 'SO' )&& (
-                <button className="remove-btn" onClick={() => handleRemoveProcess(block.id)}>
+              {(block.id && block.name !== 'SO') && (
+                <button
+                  className="remove-btn"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevenir que el clic abra el modal
+                    handleRemoveProcess(index);
+                  }}
+                >
                   X
                 </button>
               )}
-              {((memoryType === 'Estática Personalizada' || memoryType === 'Dinamica') && !block.id) && (
-                <button className="remove-partition-btn" onClick={() => handleRemovePartition(index)}>
-                  Eliminar Particion
+              {((memoryType === 'Variable Personalizada') && block.name === 'Libre') && (
+                <button
+                  className="remove-partition-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemovePartition(index);
+                  }}
+                >
+                  X Particion
                 </button>
               )}
             </div>
           ))}
+          <MemoryBlockModal
+            show={showModal}
+            block={selectedBlock}
+            onClose={() => setShowModal(false)}
+          />
         </div>
       </div>
-      {memoryType === 'Estática Personalizada' && (
+      {getMemoryTypeFromLocalStorage() === 'Variable Personalizada' && (
         <div className="custom-partition-creator">
           <input
             type="number"
@@ -286,6 +362,11 @@ function Memory() {
             placeholder="Tamaño de la partición en KB"
             value={partitionSize}
             onChange={(e) => setPartitionSize(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleAddPartition();
+              }
+            }}
           />
           <button className="btn-memory-input" onClick={handleAddPartition}>
             Agregar Partición

@@ -18,7 +18,7 @@ export function calculateTotalFreeMemory() {
     }, 0); // Iniciar la suma desde cero
 
     // Calcular la memoria libre restando la memoria utilizada del total de 16384
-    const totalFreeMemory = 16384 - totalMemoryUsed;
+    const totalFreeMemory = 15360 - totalMemoryUsed;
     return totalFreeMemory; // Retornar el total de memoria libre
 }
 // Método para calcular el tamaño total de las particiones 
@@ -27,7 +27,7 @@ export function calculateTotalPartitionSize() {
 
     // Verificar si el array de memoria está vacío
     if (memory.length === 0) {
-        return 16384; // Retornar 0 si no hay particiones
+        return 15360; // Retornar 0 si no hay particiones
     } else {
         // Sumar el tamaño de cada partición (bloque) en la memoria
         const totalPartitionSize = memory.reduce((total, block) => {

@@ -1,5 +1,7 @@
+// ProcessList.jsx
+
 import { useState, useEffect } from 'react';
-import { PROCESSES } from '../constants';
+import { PROCESSES } from '../data/constants';
 import PropTypes from 'prop-types';
 
 // Imports for localStorage functions
@@ -9,18 +11,17 @@ import {
 } from '../logic/LocalStorage/processList';
 import {
   getMemoryFromLocalStorage,
-  setMemoryForLocalStorage,
 } from '../logic/LocalStorage/memory';
 import { getMemoryTypeFromLocalStorage } from '../logic/LocalStorage/memoryControls';
 import { resetLocalStorage } from '../logic/LocalStorage/localStorageUtils';
 
-// Imports for MemoryMangment functions
+// Imports for MemoryManagement functions
 import { findMemoryBlock } from '../logic/MemoryManagment/memoryAlgorithms';
+import { calculateTotalFreeMemory } from '../logic/MemoryManagment/memoryCalculations';
 import { addPartition } from '../logic/MemoryManagment/partitionManagment';
-import { calculateTotalPartitionSize } from '../logic/MemoryManagment/memoryCalculations';
+import { addProcessToMemory, deleteAllProcesses } from '../logic/MemoryManagment/memoryManipulation'; // Importar el nuevo método
 
 function ProcessList() {
-
   const [processList, setProcessList] = useState({});
 
   useEffect(() => {
@@ -44,67 +45,63 @@ function ProcessList() {
   const handleAddProcessToMemory = (process) => {
     let currentMemory = getMemoryFromLocalStorage();
 
-    // Verificar si la memoria es dinámica y hay suficiente espacio libre
-    if (getMemoryTypeFromLocalStorage() === 'Dinamica' && process.memory <= calculateTotalPartitionSize()) {
-      // Crear una nueva partición para el proceso
-      addPartition(process.memory);
-      // Obtener la memoria actualizada después de añadir la partición
-      currentMemory = getMemoryFromLocalStorage();
-      // Encontrar el índice de la partición recién creada (última en la lista)
-      const blockIndex = currentMemory.length - 1;
+    if (getMemoryTypeFromLocalStorage() === 'Dinamica') {
+      const totalFreeMemory = calculateTotalFreeMemory();
+      // Intentar encontrar una partición usando el método firstFit
+      const blockIndex = findMemoryBlock(process, currentMemory);
+      // Si se encuentra una partición adecuada
+      if (blockIndex !== -1 && blockIndex < currentMemory.length - 1) {
+        addProcessToMemory(process, blockIndex);
+      }
 
-      // Validar si se puede agregar el proceso a la partición
-      if (process.memory <= currentMemory[blockIndex].size) {
-        currentMemory[blockIndex] = {
-          ...currentMemory[blockIndex],
-          process: process.id,
-          id: process.id,
-          name: process.name,
-          memory: process.memory,
-          image: process.image,
-        };
+      // Si el índice es igual a la longitud de la memoria, se procede a crear una nueva partición
+      if (blockIndex !== -1 && blockIndex === currentMemory.length - 1) {
+        // Verificar si hay suficiente espacio para crear una nueva partición
+        const freeBlockIndex = currentMemory.findIndex((block) => block.process === null);
+        
+        if (freeBlockIndex !== -1 && process.memory <= totalFreeMemory) {
+          // Crear una nueva partición para el proceso
+          addPartition(process.memory);
 
-        setMemoryForLocalStorage(currentMemory);
-        setProcessList((prevList) => {
-          const updatedList = { ...prevList };
-          delete updatedList[process.id];
-          setProcessQueueForLocalStorage(updatedList);
-          return updatedList;
-        });
+          // Obtener la memoria actualizada después de añadir la partición
+          currentMemory = getMemoryFromLocalStorage();
+
+          // Encontrar la nueva partición creada
+          const newPartitionIndex = currentMemory.findIndex(
+            (block) => block.size === process.memory && block.process === null
+          );
+
+          // Asignar el proceso a la nueva partición
+          if (newPartitionIndex !== -1) {
+            addProcessToMemory(process, newPartitionIndex);
+          } else {
+            alert('Error al crear la nueva partición para el proceso.');
+          }
+        } else {
+          alert('No hay suficiente espacio disponible en la memoria libre para este proceso.');
+        }
       }
     } else {
-      // Si no hay suficiente memoria libre, buscar un bloque disponible
+      // Memoria no dinámica: intentar encontrar un bloque adecuado
       const blockIndex = findMemoryBlock(process, currentMemory);
 
       if (blockIndex !== -1 && process.memory <= currentMemory[blockIndex].size) {
-        // Agregar el proceso al bloque encontrado
-        currentMemory[blockIndex] = {
-          ...currentMemory[blockIndex],
-          process: process.id,
-          id: process.id,
-          name: process.name,
-          memory: process.memory,
-          image: process.image,
-        };
-
-        setMemoryForLocalStorage(currentMemory);
-        setProcessList((prevList) => {
-          const updatedList = { ...prevList };
-          delete updatedList[process.id];
-          setProcessQueueForLocalStorage(updatedList);
-          return updatedList;
-        });
+        addProcessToMemory(process, blockIndex);
       } else {
-        // Alertar si no hay espacio disponible en ningún bloque
         alert('No hay suficiente espacio disponible para este proceso.');
       }
     }
   };
 
+
   // Función para manejar el reinicio de localStorage
   const handleReset = () => {
     resetLocalStorage();
-    setProcessList(PROCESSES); // Actualiza el estado con los procesos iniciales
+  };
+
+  // Función para eliminar todos los procesos de la memoria
+  const handleDeleteAllProcesses = () => {
+    deleteAllProcesses();
   };
 
   return (
@@ -114,15 +111,15 @@ function ProcessList() {
           <h1>Procesos</h1>
         </div>
         <div className="controls-container">
-          <button className="btn-reset" onClick={handleReset}>Reiniciar</button> {/* Botón para reiniciar */}
+          <button className="btn-reset" onClick={handleReset}>Reiniciar</button>
+          <button className="btn-reset" onClick={handleDeleteAllProcesses}>Limpiar Procesos</button>
         </div>
       </header>
       <ul className="processes-list">
         {Object.keys(processList).map((key) => {
           const process = processList[key];
-          // Condicional para no mostrar el proceso con id '0'
           if (process.id === '0') {
-            return null; // No renderiza nada si el proceso es 'SO'
+            return null;
           }
           return (
             <li key={process.id} className="process-card" onClick={() => handleAddProcessToMemory(process)}>
@@ -152,7 +149,7 @@ ProcessList.propTypes = {
     })
   ).isRequired,
   addProcessToMemory: PropTypes.func.isRequired,
-  onReset: PropTypes.func.isRequired, // Añade la validación del nuevo prop onReset
+  onReset: PropTypes.func.isRequired,
 };
 
 export default ProcessList;
