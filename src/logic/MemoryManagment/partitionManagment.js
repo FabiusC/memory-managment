@@ -1,6 +1,6 @@
 import { getMemoryFromLocalStorage, setMemoryForLocalStorage } from "../LocalStorage/memory";
 
-// Agregar una particion de memoria personalizada
+// Agregar una partición de memoria personalizada
 export function addPartition(size) {
     if (size <= 0) {
         console.error('El tamaño de la partición debe ser mayor a 0.');
@@ -9,11 +9,11 @@ export function addPartition(size) {
     }
 
     let memory = getMemoryFromLocalStorage();
-    const freeBlockIndex = memory.findIndex(block => block.process === null);
+    const freeBlockIndex = memory.length - 1; // Última partición libre
 
-    // Validar si hay una partición libre y si tiene suficiente espacio
-    if (freeBlockIndex !== -1 && size <= memory[freeBlockIndex].size) {
-        const freeBlock = memory[freeBlockIndex];
+    // Validar si la última partición libre tiene suficiente espacio
+    if (size <= memory[freeBlockIndex].size) {
+        const freeBlock = memory[freeBlockIndex]; // Guardar el bloque libre
 
         // Crear una nueva partición con el tamaño especificado
         const newPartition = {
@@ -21,23 +21,20 @@ export function addPartition(size) {
             process: null,
             name: 'Libre',
         };
-
-        // Insertar la nueva partición antes de la partición libre
-        memory.splice(freeBlockIndex, 0, newPartition);
-
+        // Insertar la nueva partición en la penúltima posición de la memoria
+        memory.splice(memory.length - 1, 0, newPartition);
         // Reducir el tamaño de la partición libre restante
         freeBlock.size -= size;
 
         // Si la partición libre se quedó sin espacio, eliminarla
         if (freeBlock.size === 0) {
-            memory.splice(freeBlockIndex + 1, 1);
+            memory.splice(freeBlockIndex, 1); // Eliminar la partición si está vacía
         }
     } else {
-        console.error('No hay suficiente espacio en la partición libre para crear una nueva partición.');
         alert('No hay suficiente espacio en la partición libre para crear una nueva partición.');
         return;
     }
-
+    // Guardar la memoria actualizada en el localStorage
     setMemoryForLocalStorage(memory);
 }
 
@@ -45,10 +42,15 @@ export function addPartition(size) {
 export function removePartition(index) {
     // Obtener la memoria actual
     let memory = getMemoryFromLocalStorage();
+
     // Validar el índice y eliminar la partición si es válido
     if (index >= 0 && index < memory.length) {
+        // Agregar el tamaño de la partición eliminada a la última partición de la memoria
+        memory[memory.length - 1].size += memory[index].size;
+
         // Remover la partición del array de memoria
         memory.splice(index, 1);
+
         // Actualizar la memoria en el localStorage
         setMemoryForLocalStorage(memory);
     } else {

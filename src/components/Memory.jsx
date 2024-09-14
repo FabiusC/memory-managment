@@ -232,6 +232,10 @@ function Memory() {
     setLocalIsCompact(compact);
     setCompactMode(compact);
     setLocalIsCompact(getIsCompactFromLocalStorage());
+    if (getIsCompactFromLocalStorage()) {
+      compactMemory();
+    }
+    compactMemory();
   };
 
   const handleRemoveProcess = (index) => {
@@ -253,8 +257,7 @@ function Memory() {
   };
 
   const handleRemovePartition = (index) => {
-    if (memoryType === 'Estática Personalizada') {
-      console.log(`Removering partition at index ${index}`);
+    if (getMemoryTypeFromLocalStorage() === 'Variable Personalizada') {
       removePartition(index);
       const updatedMemory = getMemoryFromLocalStorage();
       setLocalMemory(Array.isArray(updatedMemory) ? updatedMemory : []);
@@ -331,7 +334,7 @@ function Memory() {
                   X
                 </button>
               )}
-              {(((memoryType === 'Variable Personalizada' || memoryType === 'Dinamica') && block.name === 'Libre') && !block.id) && (
+              {((memoryType === 'Variable Personalizada') && block.name === 'Libre') && (
                 <button
                   className="remove-partition-btn"
                   onClick={(e) => {
@@ -351,7 +354,7 @@ function Memory() {
           />
         </div>
       </div>
-      {memoryType === 'Variable Personalizada' && (
+      {getMemoryTypeFromLocalStorage() === 'Variable Personalizada' && (
         <div className="custom-partition-creator">
           <input
             type="number"
@@ -359,6 +362,11 @@ function Memory() {
             placeholder="Tamaño de la partición en KB"
             value={partitionSize}
             onChange={(e) => setPartitionSize(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleAddPartition();
+              }
+            }}
           />
           <button className="btn-memory-input" onClick={handleAddPartition}>
             Agregar Partición

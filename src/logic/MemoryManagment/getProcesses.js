@@ -19,7 +19,6 @@ export function getProcessByIndex(index) {
     const memory = getMemoryFromLocalStorage();
     // Verificar que el índice esté dentro de los límites del array
     if (index >= 0 && index < memory.length) {
-        console.log(`Proceso de ${index} en ${memory[index]}`);
         return memory[index]; // Retorna el proceso correspondiente al índice
     } else {
         console.error(`Indice fuera de rango: ${index}`);

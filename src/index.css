@@ -285,21 +285,6 @@ body {
   transform: scale(1.1);
 }
 
-.custom-memory {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  gap: 10px;
-  transition: all 0.3s;
-}
-
-.custom-memory:hover {
-  border-color: #ff0000;
-  transform: scale(0.95);
-}
-
 .custom-partition-creator {
   display: flex;
   justify-content: center;
@@ -365,7 +350,7 @@ body {
 .remove-partition-btn {
   width: 30%;
   height: 100%;
-  background-color: #ff4444;
+  background-color: var(--button-bg);
   color: white;
   border: none;
   border-radius: 5px;
@@ -374,7 +359,7 @@ body {
 }
 
 .remove-partition-btn:hover {
-  background-color: #cc0000;
+  background-color: var(--button-hover);
 }
 /* Modal Styles ================================================================================== */
 .open-modal-btn {
@@ -438,3 +423,5 @@ body {
 .close-btn:hover {
   background-color: #cc0000;
 }
+
+/* Message Modal ================================================================================= */

@@ -1,5 +1,5 @@
 import { getMemoryFromLocalStorage, setMemoryForLocalStorage } from "../LocalStorage/memory";
-import { getAlgorithmTypeFromLocalStorage, getMemoryTypeFromLocalStorage } from "../LocalStorage/memoryControls";
+import { getMemoryTypeFromLocalStorage } from "../LocalStorage/memoryControls";
 import { getProcessByIndex } from "./getProcesses";
 import { joinMemoryBlocks, removePartition } from "./partitionManagment";
 
@@ -7,84 +7,26 @@ import { joinMemoryBlocks, removePartition } from "./partitionManagment";
 export function compactMemory() {
     // Obtener la memoria actual desde el localStorage
     let memory = getMemoryFromLocalStorage();
-
     // Verificar si la memoria es dinámica
     const isDynamicMemory = getMemoryTypeFromLocalStorage() === 'Dinamica';
-
-    // Filtrar los bloques que están ocupados (tienen un proceso) y los bloques libres
-    let occupiedBlocks = memory.filter(block => block.process !== null); // Bloques con procesos
-    let freeBlocks = memory.filter(block => block.process === null); // Bloques libres
-
     if (isDynamicMemory) {
-        // Si la memoria es dinámica, eliminar las particiones vacías
-        freeBlocks.forEach((block) => {
-            const blockIndex = memory.indexOf(block);
-            removePartition(blockIndex); // Eliminar la partición libre
-        });
-        memory = [...occupiedBlocks]; // Actualizar la memoria sin los bloques libres
-    } else {
-        // Si la memoria no es dinámica, mover los procesos para ocupar el espacio libre sin eliminar particiones
-        let compactedMemory = [];
-        // Obtener el tipo de algoritmo de asignación desde el localStorage
-        const algorithmType = getAlgorithmTypeFromLocalStorage();
-        occupiedBlocks.forEach((processBlock, index) => {
-            let freeIndex = -1;
-            switch (algorithmType) {
-                case 'Primer ajuste': { // First Fit
-                    freeIndex = memory.findIndex(block => block.process === null && block.size >= processBlock.memory);
-                    break;
-                }
-                case 'Mejor ajuste': {
-                    let bestFitIndex = -1; // Best Fit
-                    let smallestSizeDiff = Infinity;
-                    memory.forEach((block, idx) => {
-                        if (block.process === null && block.size >= processBlock.memory) {
-                            const sizeDiff = block.size - processBlock.memory;
-                            if (sizeDiff < smallestSizeDiff) {
-                                smallestSizeDiff = sizeDiff;
-                                bestFitIndex = idx;
-                            }
-                        }
-                    });
-                    freeIndex = bestFitIndex;
-                    break;
-                }
-                case 'Peor ajuste': { // Worst Fit
-                    let worstFitIndex = -1;
-                    let largestSizeDiff = -1;
-                    memory.forEach((block, idx) => {
-                        if (block.process === null && block.size >= processBlock.memory) {
-                            const sizeDiff = block.size - processBlock.memory;
-                            if (sizeDiff > largestSizeDiff) {
-                                largestSizeDiff = sizeDiff;
-                                worstFitIndex = idx;
-                            }
-                        }
-                    });
-                    freeIndex = worstFitIndex;
-                    break;
-                }
-                default: {
-                    console.error('Tipo de algoritmo no reconocido:', algorithmType);
-                    break;
+        // Recorrer la memoria en orden inverso
+        for (let i = memory.length - 1; i >= 0; i--) {
+            let block = memory[i];
+            memory = getMemoryFromLocalStorage(); // Obtener la memoria actualizada
+            // Verificar si el bloque está libre (sin proceso)
+            if (block.process === null) {
+                // Asignar la memoria de este bloque al último bloque de la memoria
+                if (i !== memory.length - 1) {
+                    memory[memory.length - 1].size += block.size; // Añadir el tamaño de la partición vacía a la última partición
+                    setMemoryForLocalStorage(memory); // Guardar la memoria actualizada
+                    removePartition(i);
                 }
             }
-            if (freeIndex !== -1 && freeIndex < index) {
-                // Si se encuentra un bloque libre adecuado y está antes del proceso actual, mover el proceso a esa posición
-                memory[freeIndex] = { ...processBlock, size: memory[freeIndex].size };
-                memory[index] = { process: null, size: processBlock.size }; // Dejar libre la posición original
-            } else {
-                // Mantener el proceso en su posición si no se encuentra una mejor opción
-                compactedMemory.push(processBlock);
-            }
-        });
-        // Añadir los bloques libres restantes al final
-        memory = [...compactedMemory, ...freeBlocks];
+        }
     }
-
-    // Guardar la memoria actualizada en el localStorage
-    setMemoryForLocalStorage(memory);
 }
+
 
 // Eliminar proceso de la memoria
 export function removeProcess(index) {
@@ -124,7 +66,7 @@ export function removeProcess(index) {
     setMemoryForLocalStorage(memory);
 
     // Llamar al método para unir bloques contiguos que estén libres si la memoria es dinámica
-    if (getMemoryTypeFromLocalStorage() === 'Dinamica') {
+    if (getMemoryTypeFromLocalStorage() === 'Dinamica' || getMemoryTypeFromLocalStorage() === 'Variable Personalizada') {
         joinMemoryBlocks();
     }
 }
