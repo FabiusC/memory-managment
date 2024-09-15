@@ -271,12 +271,12 @@ export const MEMORY_CONFIGURATIONS = {
             image: 'https://svgl.app/library/windows.svg',
             size: 1024
         }, // Primera partición reservada para el proceso SO
-        { process: null, size: 4096 },                   // 1 Partición de 4MB
-        { process: null, size: 3072 },                   // 1 Partición de 3MB
-        { process: null, size: 2048 },                   // 1 Partición de 2MB
-        ...Array(2).fill({ process: null, size: 1024 }), // 2 Particiones de 1MB
-        ...Array(4).fill({ process: null, size: 512 }),  // 4 Particiones de 0.5MB
-        ...Array(8).fill({ process: null, size: 256 }),  // 8 Particiones de 0.25MB
+        { process: null, size: 4096 },                   // 1 Partición de 4MB => 4 MB
+        { process: null, size: 3072 },                   // 1 Partición de 3MB => 3 MB
+        { process: null, size: 2048 },                   // 1 Partición de 2MB => 2 MB
+        ...Array(3).fill({ process: null, size: 1024 }), // 3 Particiones de 1MB => 3 MB
+        ...Array(4).fill({ process: null, size: 512 }),  // 4 Particiones de 0.5MB => 2 MB
+        ...Array(4).fill({ process: null, size: 256 }),  // 4 Particiones de 0.25MB => 1 MB
     ],
     'Variable Personalizada': [
         {
