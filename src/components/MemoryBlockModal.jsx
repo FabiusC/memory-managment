@@ -2,7 +2,6 @@
 /* eslint-disable no-unused-vars */
 
 import { getMemoryFromLocalStorage } from "../logic/LocalStorage/memory";
-import { getProcessByIndex, getProcessIndex } from "../logic/MemoryManagment/getProcesses";
 import { getMemoryIndex } from "../logic/MemoryManagment/memoryCalculations";
 
 // Modal para mostrar la información del bloque de memoria
