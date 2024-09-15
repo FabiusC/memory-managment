@@ -424,4 +424,167 @@ body {
   background-color: #cc0000;
 }
 
-/* Message Modal ================================================================================= */
+/* Media Queries for Responsive Design */
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .process-list-container,
+  .memory-container {
+    width: 100%;
+    min-height: 70vh;
+  }
+
+  .processes-list {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  }
+
+  .process-card {
+    padding: 5px;
+  }
+
+  .process-image {
+    width: 40px;
+    max-height: 40px;
+    min-height: 40px;
+  }
+
+  .title {
+    font-size: 20px;
+    margin-left: 10px;
+  }
+
+  .btn-reset {
+    padding: 8px 16px;
+  }
+
+  .btn-reset:hover {
+    transform: scale(1.05);
+  }
+
+  .memory-controls {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .memory-visualization-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .blocks-wrapper {
+    margin-left: 0;
+    margin-top: 10px;
+    width: 100%;
+  }
+
+  .chart {
+    width: 100% !important;
+    height: 300px !important;
+  }
+
+  .memory-block {
+    flex-direction: column !important;
+    align-items: center;
+    margin: 10px 0;
+  }
+
+  .remove-btn {
+    width: 80%;
+  }
+
+  .remove-partition-btn {
+    width: 80%;
+  }
+
+  .btn-memory-input,
+  .memory-input {
+    width: 70%;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .process-list-container {
+    width: 100%;
+  }
+
+  .memory-container {
+    width: 100%;
+  }
+
+  .processes-list {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 5px;
+  }
+
+  .process-card {
+    padding: 5px;
+  }
+
+  .chart {
+    height: 250px !important;
+  }
+
+  .memory-visualization-container {
+    flex-direction: column;
+  }
+
+  .blocks-wrapper {
+    width: 100%;
+    margin: 0;
+  }
+
+  .memory-block {
+    flex-direction: row;
+    padding: 5px;
+  }
+
+  .remove-btn,
+  .remove-partition-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .process-list-container,
+  .memory-container {
+    width: 100%;
+    min-height: 60vh;
+  }
+
+  .btn-reset {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .memory-input {
+    width: 60%;
+    font-size: 12px;
+  }
+
+  .btn-memory-input {
+    width: 60%;
+    font-size: 12px;
+  }
+
+  .close-btn {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .process-image {
+    width: 30px;
+    height: 30px;
+  }
+
+  .modal-content {
+    width: 250px;
+    padding: 15px;
+  }
+}
