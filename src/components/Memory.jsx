@@ -36,11 +36,11 @@ function Memory() {
   const [showModal, setShowModal] = useState(false);
   const [partitionSize, setPartitionSize] = useState('');
 
-  // Reference for the chart canvas
+  // Referencias para el Chart
   const chartRef = useRef(null);
   let myChart = useRef(null); // To store the chart instance
 
-  // Initialize memory and process queue
+  // Inicializar el estado local con los valores de localStorage
   useEffect(() => {
     initializeMemoryAndQueue();
     setLocalMemory(getMemoryFromLocalStorage());
@@ -57,15 +57,15 @@ function Memory() {
     };
   }, []);
 
-  // Set up the Chart.js stacked bar chart when component mounts
+  // Montaje del grafico con Chart.js
   useEffect(() => {
     if (chartRef.current) {
       const ctx = chartRef.current.getContext('2d');
-
+  
       // Crear datasets para cada bloque de memoria, dividiendo entre memoria usada y libre
       const datasets = localMemory.flatMap((block, index) => {
         const { startAddress, endAddress } = getMemoryIndex(index);
-
+  
         // Dataset para la memoria usada (solo si hay un proceso)
         const usedDataset = {
           label: `Memoria Usada (${startAddress} - ${endAddress})`,
@@ -73,10 +73,13 @@ function Memory() {
           backgroundColor: '#ff4444', // Rojo para la memoria usada
           borderColor: '#000000',
           borderWidth: 2,
+          borderSkipped: (block.size === block.memory) ? false : // Borde completo si el bloque esta lleno
+          (block.size > block.memory) ? 'top' : false, // Borde superior si tiene espacio
+          borderRadius: { topLeft: 50, topRight: 50, bottomLeft: 50, bottomRight: 50 },
           stack: `memoryStack`,
           tooltipInfo: `Proceso: ${block.name}\nMemoria Usada: ${block.memory || 0} KB\nDirección: ${startAddress} - ${endAddress}`,
         };
-
+  
         // Dataset para la memoria libre
         const freeDataset = {
           label: `Memoria Libre (${startAddress} - ${endAddress})`,
@@ -84,14 +87,18 @@ function Memory() {
           backgroundColor: '#4FC3F7', // Azul para la memoria libre
           borderColor: '#000000',
           borderWidth: 2,
+          borderSkipped: (block.size === block.memory) ? false : // Borde completo si el bloque esta lleno
+          (block.memory === null) ? false : // Borde completo si el bloque esta vacío
+          (block.size > block.memory) ? 'bottom' : false, // Borde completo si está lleno, solo borde inferior si tiene espacio
+          borderRadius: { topLeft: 50, topRight: 50, bottomLeft: 50, bottomRight: 50 },
           stack: `memoryStack`,
           tooltipInfo: `Memoria Libre: ${block.size - (block.memory || 0)} KB\nDirección: ${startAddress} - ${endAddress}`,
         };
-
+  
         // Retorna ambos datasets (usado y libre) para cada bloque
         return [usedDataset, freeDataset];
       });
-
+  
       myChart.current = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -147,12 +154,12 @@ function Memory() {
                 generateLabels: function (chart) {
                   // Filtra y muestra solo las direcciones únicas
                   const uniqueLabels = [];
-                  chart.data.datasets.forEach(dataset => {
+                  chart.data.datasets.forEach((dataset) => {
                     if (!uniqueLabels.includes(dataset.label)) {
                       uniqueLabels.push(dataset.label);
                     }
                   });
-                  return uniqueLabels.map(label => ({
+                  return uniqueLabels.map((label) => ({
                     text: label, // Mostrar solo las direcciones de memoria
                     fillStyle: '#4FC3F7',
                     hidden: false,
@@ -193,7 +200,7 @@ function Memory() {
         },
       });
     }
-
+  
     // Cleanup on unmount
     return () => {
       if (myChart.current) {
@@ -201,8 +208,9 @@ function Memory() {
       }
     };
   }, [localMemory]);
+  
 
-  // Function to update chart data
+  // Funcion para actualizar el chart
   const updateChart = () => {
     if (myChart.current) {
       myChart.current.data.datasets[0].data = localMemory.map((block) => block.memory || 0);
@@ -264,8 +272,8 @@ function Memory() {
     }
   };
 
-  const handleBlockClick = (block) => {
-    setSelectedBlock(block);
+  const handleBlockClick = (index) => {
+    setSelectedBlock(index);
     setShowModal(true);
   };
 
@@ -312,7 +320,7 @@ function Memory() {
             <div
               key={index}
               className={`memory-block`}
-              onClick={() => handleBlockClick(block)} // Abre el modal al hacer clic en el bloque
+              onClick={() => handleBlockClick(index)} // Abre el modal al hacer clic en el bloque
             >
               <span
                 className={`memory-status ${block.process ? 'memory-block-with-process' : ''}`}
@@ -349,7 +357,7 @@ function Memory() {
           ))}
           <MemoryBlockModal
             show={showModal}
-            block={selectedBlock}
+            index={selectedBlock}
             onClose={() => setShowModal(false)}
           />
         </div>

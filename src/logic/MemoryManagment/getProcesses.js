@@ -14,7 +14,7 @@ export function getProcessByIdFromPROCESSES(processId) {
         return null;
     }
 }
-// Método para obtener un proceso según su índice en la memoria
+// Método para obtener inidice según su índice en la memoria
 export function getProcessByIndex(index) {
     const memory = getMemoryFromLocalStorage();
     // Verificar que el índice esté dentro de los límites del array
