@@ -75,7 +75,7 @@ function Memory() {
           borderWidth: 2,
           borderSkipped: (block.size === block.memory) ? false : // Borde completo si el bloque esta lleno
           (block.size > block.memory) ? 'top' : false, // Borde superior si tiene espacio
-          borderRadius: { topLeft: 50, topRight: 50, bottomLeft: 50, bottomRight: 50 },
+          borderRadius: { topLeft: 20, topRight: 20, bottomLeft: 20, bottomRight: 20 },
           stack: `memoryStack`,
           tooltipInfo: `Proceso: ${block.name}\nMemoria Usada: ${block.memory || 0} KB\nDirección: ${startAddress} - ${endAddress}`,
         };
@@ -90,7 +90,7 @@ function Memory() {
           borderSkipped: (block.size === block.memory) ? false : // Borde completo si el bloque esta lleno
           (block.memory === null) ? false : // Borde completo si el bloque esta vacío
           (block.size > block.memory) ? 'bottom' : false, // Borde completo si está lleno, solo borde inferior si tiene espacio
-          borderRadius: { topLeft: 50, topRight: 50, bottomLeft: 50, bottomRight: 50 },
+          borderRadius: { topLeft: 20, topRight: 20, bottomLeft: 20, bottomRight: 20 },
           stack: `memoryStack`,
           tooltipInfo: `Memoria Libre: ${block.size - (block.memory || 0)} KB\nDirección: ${startAddress} - ${endAddress}`,
         };
