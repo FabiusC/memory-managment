@@ -18,7 +18,7 @@ export function calculateTotalFreeMemory() {
     }, 0); // Iniciar la suma desde cero
 
     // Calcular la memoria libre restando la memoria utilizada del total de 16384
-    const totalFreeMemory = 15360 - totalMemoryUsed;
+    const totalFreeMemory = 16380 - totalMemoryUsed;
     return totalFreeMemory; // Retornar el total de memoria libre
 }
 // Método para calcular el tamaño total de las particiones 
