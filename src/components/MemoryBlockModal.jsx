@@ -25,8 +25,8 @@ function MemoryBlockModal({ show, index, onClose }) {
                 <p><strong>Nombre:</strong> {block.name || 'Libre'}</p>
                 <p><strong>Tamaño Total:</strong> {block.size} KB</p>
                 <p><strong>Memoria Usada:</strong> {block.memory || 0} KB</p>
-                <p><strong>Indice Inicial:</strong> {startAddress} </p>
-                <p><strong>Indice Final:</strong> {endAddress} </p>
+                <p><strong>Direccion Inicial:</strong> {startAddress} </p>
+                <p><strong>Direccion Final:</strong> {endAddress} </p>
                 {(block.text !== undefined && block.process !== null) && (
                     <div className="process-memory-details">
                         <h4>Detalles de Memoria</h4>
